@@ -12,11 +12,11 @@ userRouter.route("/logout").post(authController.logout);
 
 // registro de vacunadores u otros usuarios por el admin
 userRouter
-  .route("/createUser")
+  .route("/signup-vacc")
   .post(
     authController.protect,
     authController.restrictTo("admin"),
-    userController.createUserRenaper
+    authController.signupVacc
   );
 
 userRouter

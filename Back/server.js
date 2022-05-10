@@ -21,6 +21,7 @@ app.use(morgan());
 /// middlewares para aceptar el manejo de cookies
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:8082");
   res.setHeader(
     "Access-Control-Allow-Headers",
     "X-Requested-With,content-type"

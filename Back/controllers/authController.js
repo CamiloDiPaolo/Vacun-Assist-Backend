@@ -25,7 +25,7 @@ const signupToken = (id) => {
  * @param {Object} usr es el usuario que esta intentado logearse o registrarse
  * @param {Response} res es el objeto response
  */
-const createSendToken = (usr, res) => {
+const createSendToken = (usr, res, mismoSitio = false) => {
   const token = signupToken(usr._id);
   const cookieOptions = {
     expires: new Date(Date.now() + 10 * 60 * 1000),
@@ -36,8 +36,11 @@ const createSendToken = (usr, res) => {
   res.cookie("jwt", token, cookieOptions);
 
   // no tengo las mas minima idea de como llegue a esta solucion... pero me sobran pelotas
-  const noCorsCookie = res.getHeader("Set-Cookie");
-  res.setHeader("Set-Cookie", `${noCorsCookie}; SameSite=None; Secure`);
+
+  if (!mismoSitio) {
+    const noCorsCookie = res.getHeader("Set-Cookie");
+    res.setHeader("Set-Cookie", `${noCorsCookie}; SameSite=None; Secure`);
+  }
 
   res.status(201).json({
     status: "success",
@@ -92,6 +95,29 @@ exports.signup = catchAsync(async (req, res, next) => {
   // creamos el JWT y lo almacenamos en la cookie
   createSendTokenMail("1234", res, req.body.email);
 });
+exports.signupVacc = catchAsync(async (req, res, next) => {
+  //verificamos que solo se crea un vacunador
+  if (["admin", "user"].includes(req.body.rol))
+    return next(
+      new Error("Solo solo se pueden registrar vacunadores de esta forma")
+    );
+
+  if (!req.body.vaccinationCenter)
+    return next(
+      new Error("Un vacunador debe tener asignado un centro de vacunacion")
+    );
+
+  // consultamos la api del renaper para completar los datos
+  // req.body.email = req.body.email.toLowerCase();
+  req.body.password = "contraseña aleatoria";
+  const dataNewUser = await userController.userRenaper(req.body);
+
+  // guardamos los datos del usuario que quiere registrarse en una cookie
+  res.cookie("userAuthData", dataNewUser);
+
+  // creamos el JWT y lo almacenamos en la cookie
+  createSendTokenMail("1234", res, req.body.email);
+});
 /**
  * Esta funcion inicia la sesion de un usuario existente
  * @param {Request} req es el objeto request
@@ -99,14 +125,14 @@ exports.signup = catchAsync(async (req, res, next) => {
  * @param {function} next es la funcion que utilizamos para seguir con el flujo de middlewares
  */
 exports.login = catchAsync(async (req, res, next) => {
-  console.log("Datos del usuario que quiere iniciar sesion: ", req.body);
-  console.log("cookies: ", req.cookies);
-  console.log(
-    "HEADER LOGIN-----------",
-    res.getHeader("Access-Control-Allow-Credentials")
-  );
+  // console.log("Datos del usuario que quiere iniciar sesion: ", req.body);
+  // console.log("cookies: ", req.cookies);
+  // console.log(
+  //   "HEADER LOGIN-----------",
+  //   res.getHeader("Access-Control-Allow-Credentials")
+  // );
 
-  console.log("COOKIES DE LA REQ ", req.cookies.jwt);
+  // console.log("COOKIES DE LA REQ ", req.cookies.jwt);
 
   const { dni, password, code } = { ...req.body };
 
@@ -120,8 +146,12 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user)
     return next(new Error("Alguno de los datos ingresados es incorrecto"));
 
+  // console.log("HOST:", req.headers.host);
+
+  // esto va solo en modo dev
+  const mismoSitio = req.headers.host === "127.0.0.1:8082";
   // si todo esta ok enviamos el token
-  createSendToken(user, res);
+  createSendToken(user, res, mismoSitio);
 });
 /**
  * Esta funcion borra todas las cookies

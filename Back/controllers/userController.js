@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 const catchAsync = require("../utils/cathAsync");
 // modulo usado para ahcer peticiones a la API de renaper
 const axios = require("axios");
-const URLRenaper = "http://localhost:8000/renaper";
+const URLRenaper = "http://localhost:8000/person/lookup";
 
 exports.createUser = catchAsync(async (req, res, next) => {
   const newUser = User.create(req.body);
@@ -38,48 +38,6 @@ exports.getUser = catchAsync(async (req, res, next) => {
   });
 });
 /**
- * Esta funcion permite al administrador crear un usuario consultando los datos del renaper
- * @param {Request} req es el objeto request
- * @param {Response} res es el objeto response
- * @param {function} next es la funcion que utilizamos para seguir con el flujo de middlewares
- */
-exports.createUserRenaper = catchAsync(async (req, res, next) => {
-  // objeto de configuracion axios
-  const options = {
-    url: "/",
-    method: "get",
-    baseURL: URLRenaper,
-    headers: { "X-Requested-With": "XMLHttpRequest" },
-    data: { dni: req.body.dni },
-    // data: { dni: "43521062" },
-    timeout: 5000,
-  };
-  // obtenemos los datos de la persona del renaper
-  const resRenaper = await axios(options);
-  const userEspañol = resRenaper.data.data;
-
-  // si el usuario a crear es un vacunador debe tener especificado el centro de vacunacion
-  if ((req.body.rol = "vacc" && !req.body.vaccinationCenter))
-    return next(
-      new Error("Los vacunadores deben tener asignado un centro de vacunacion")
-    );
-
-  // si la persona es una persona juridica devolvemos un error
-  if (userEspañol.tipoPersona === "JURIDICA")
-    return next(new Error("Solo se aceptan personas fisicas"));
-
-  // pasamos la data del usuario al formato de la base de datos
-  const newUserData = dataFormat(userEspañol, req.body);
-  const newUser = User.create(newUserData);
-
-  res.status(201).json({
-    status: "success",
-    data: {
-      user: newUser,
-    },
-  });
-});
-/**
  * Esta funcion retorna lso datos de una persona del renaper con el formato utilizado en la base de datos
  * @param {Object} usrData son los datos del usuario utilizados para el registro: dni, password, email y rol
  * @returns un objeto de usuario con todos los datos del renaper formateados, o tira un error si algo sale mal con la API
@@ -90,7 +48,7 @@ exports.userRenaper = async (usrData) => {
     const options = {
       url: "/",
       method: "get",
-      baseURL: "http://localhost:8000/renaper",
+      baseURL: URLRenaper,
       headers: { "X-Requested-With": "XMLHttpRequest" },
       data: { dni: usrData.dni },
       // data: { dni: "43521062" },
