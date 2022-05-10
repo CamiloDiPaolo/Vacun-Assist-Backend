@@ -214,7 +214,7 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
     return next(new Error("El codido de verificacion es incorrecto"));
 
   // almacenamos el codigo en el usuario y lo creamos
-  req.cookies.userAuthData.code = req.params.token + "";
+  req.cookies.userAuthData.code = req.body.token + "";
   const newUser = await User.create(req.cookies.userAuthData);
 
   createSendToken(newUser, res);
