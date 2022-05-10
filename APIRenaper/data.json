@@ -1,0 +1,84 @@
+[
+  {
+    "apellido": "DI PAOLO",
+    "domicilio": {
+      "calle": "7 E/ 74 Y 75",
+      "codigoPostal": "1900",
+      "descripcionProvincia": "BUENOS AIRES",
+      "direccion": "7 E/ 74 Y 75 2094",
+      "estadoDomicilio": "NO CONFIRMADO",
+      "idProvincia": "1",
+      "localidad": "SIN INFORMAR",
+      "numero": "2094",
+      "tipoDomicilio": "LEGAL/REAL"
+    },
+    "estadoClave": "ACTIVO",
+    "fechaNacimiento": "2001-06-26T12:00:00-03:00",
+    "idPersona": "20435210628",
+    "nombre": "CAMILO",
+    "numeroDocumento": "43521062",
+    "tipoClave": "CUIL",
+    "tipoDocumento": "DNI",
+    "tipoPersona": "FISICA"
+  },
+  {
+    "apellido": "FONTANA JOAQUIN IGNACIO",
+    "domicilio": {
+      "calle": "CALLE 20",
+      "codigoPostal": "1900",
+      "descripcionProvincia": "BUENOS AIRES",
+      "direccion": "CALLE 20 1677",
+      "estadoDomicilio": "NO CONFIRMADO",
+      "idProvincia": "1",
+      "localidad": "LA PLATA",
+      "numero": "1677",
+      "tipoDomicilio": "LEGAL/REAL"
+    },
+    "estadoClave": "ACTIVO",
+    "fechaNacimiento": "2001-04-04T12:00:00-03:00",
+    "idPersona": "23433178319",
+    "numeroDocumento": "43317831",
+    "tipoClave": "CUIL",
+    "tipoDocumento": "DNI",
+    "tipoPersona": "FISICA"
+  },
+  {
+    "apellido": "EVEQUOZ",
+    "descripcionActividadPrincipal": "SERVICIOS DE CONSULTORES EN TECNOLOGÍA DE LA INFORMACIÓN",
+    "domicilio": [
+      {
+        "calle": "115",
+        "codigoPostal": "1884",
+        "descripcionProvincia": "BUENOS AIRES",
+        "direccion": "115 1956",
+        "estadoDomicilio": "DECLARADO",
+        "idProvincia": "1",
+        "localidad": "BERAZATEGUI",
+        "numero": "1956",
+        "tipoDomicilio": "FISCAL"
+      },
+      {
+        "calle": "115",
+        "codigoPostal": "1884",
+        "descripcionProvincia": "BUENOS AIRES",
+        "direccion": "115 1956",
+        "estadoDomicilio": "DECLARADO",
+        "idProvincia": "1",
+        "localidad": "BERAZATEGUI",
+        "numero": "1956",
+        "tipoDomicilio": "LEGAL/REAL"
+      }
+    ],
+    "estadoClave": "ACTIVO",
+    "fechaNacimiento": "2001-06-21T12:00:00-03:00",
+    "idActividadPrincipal": "620300",
+    "idPersona": "23434820294",
+    "mesCierre": "12",
+    "nombre": "GUADALUPE",
+    "numeroDocumento": "43482029",
+    "periodoActividadPrincipal": "202204",
+    "tipoClave": "CUIT",
+    "tipoDocumento": "DNI",
+    "tipoPersona": "FISICA"
+  }
+]
