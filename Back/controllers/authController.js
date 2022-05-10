@@ -210,7 +210,7 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
   // para eso convertimos el metodo en una promesa, ya que estamos en una funcion async
   const decodedToken = await promisify(jwt.verify)(token, JWT_SECRET);
 
-  if (!(decodedToken.id == req.params.token))
+  if (!(decodedToken.id == req.body.token))
     return next(new Error("El codido de verificacion es incorrecto"));
 
   // almacenamos el codigo en el usuario y lo creamos

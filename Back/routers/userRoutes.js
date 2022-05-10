@@ -6,7 +6,7 @@ const userRouter = express.Router();
 
 // registro de usuario y logeo general
 userRouter.route("/signup").post(authController.signup);
-userRouter.route("/signup/:token").post(authController.confirmAcount);
+userRouter.route("/signup-confirm").post(authController.confirmAcount);
 userRouter.route("/login").post(authController.login);
 userRouter.route("/logout").post(authController.logout);
 
