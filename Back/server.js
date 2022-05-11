@@ -20,6 +20,7 @@ app.use(morgan());
 
 /// middlewares para aceptar el manejo de cookies
 app.use((req, res, next) => {
+  // comentar alguno dependiendo el ambiente en el que se esta proban(front con react o postman)
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:8082");
   res.setHeader(
@@ -31,10 +32,6 @@ app.use((req, res, next) => {
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
   );
   res.setHeader("Access-Control-Allow-Credentials", true);
-  console.log(
-    "HEADER-----------",
-    res.getHeader("Access-Control-Allow-Credentials")
-  );
   next();
 });
 
