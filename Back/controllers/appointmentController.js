@@ -15,11 +15,15 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
   req.body.patientDni = req.user.dni;
 
   // POR AHORA HARDCODEAMOS LA FECHA DEL TURNO; DESPUES TIENE QUE HACERSE BIEN
-  let fecha = new Date();
-  fecha.setDate(fecha.getDate() + 1);
-  req.body.vaccinationDate = fecha;
+  // let fecha = new Date();
+  // fecha.setDate(fecha.getDate() + 1);
+  // req.body.vaccinationDate = fecha;
 
-  getAppointmentDate(req.user.birthday, req.body.vaccine, true);
+  req.body.vaccinationDate = getAppointmentDate(
+    req.user.birthday,
+    req.body.vaccine,
+    true
+  );
 
   const newAppointment = await Appointment.create(req.body);
 
