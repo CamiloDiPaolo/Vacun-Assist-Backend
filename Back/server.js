@@ -3,13 +3,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 // modulo para formatear las cookies y que aparezcan en formato json
 const cookieParser = require("cookie-parser");
-
-const cors = require("cors");
 const morgan = require("morgan");
 
 // modulos creados por mi
 const userRouter = require("./routers/userRoutes");
 const appointmentRouter = require("./routers/appointmentRoutes");
+const { PORT, ALLOWED_ACCES_URL } = require("./config");
 
 // creamos la app express
 const app = express();
@@ -20,9 +19,7 @@ app.use(morgan());
 
 /// middlewares para aceptar el manejo de cookies
 app.use((req, res, next) => {
-  // comentar alguno dependiendo el ambiente en el que se esta proban(front con react o postman)
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:8082");
+  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ACCES_URL.join(" "));
   res.setHeader(
     "Access-Control-Allow-Headers",
     "X-Requested-With,content-type"
@@ -63,13 +60,14 @@ app.use("/appointment", appointmentRouter);
 
 // manejador de errores global
 app.use((err, req, res, next) => {
-  res.status(500).json({
+  console.log(err.statusCode);
+  res.status(err.statusCode || 500).json({
     status: "fail",
     message: err.message,
   });
 });
 
 // levantamos el servidor
-const server = app.listen(8082, () => {
+const server = app.listen(PORT, () => {
   console.log("El servidor esta arriba");
 });

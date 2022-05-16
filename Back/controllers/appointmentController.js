@@ -1,6 +1,7 @@
 const Appointment = require("../models/appointmentModel");
 const userController = require("./userController");
 const catchAsync = require("../utils/cathAsync");
+const AppError = require("../utils/appError");
 
 exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
   // si el usuario ya esta vacunado contra esa vacuna no se permite sacar el turno
@@ -9,7 +10,7 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
     req.body.vaccine,
     req.user.birthday
   );
-  if (err) return next(new Error(err));
+  if (err) return next(new AppError(err, 500));
 
   // si esta todo correcto se sigue
   req.body.patientDni = req.user.dni;
@@ -36,7 +37,10 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
 exports.createAppointmentLocal = catchAsync(async (req, res, next) => {
   // chequeo si existe en el renaper
   if (!(await userController.validRenaper(req.body.dni))) {
-    return next(new Error("El usuario no es valido para la API del renaper"));
+    return next(
+      new AppError("El usuario no es valido para la API del renaper"),
+      403
+    );
   }
   // corroboro que pueda darse el turno a la vacuna
   const err = await appointmentValidation(
@@ -44,12 +48,15 @@ exports.createAppointmentLocal = catchAsync(async (req, res, next) => {
     req.body.vaccine,
     req.user.birthday
   );
-  if (err) return next(new Error(err));
+  if (err) return next(new new AppError(err)(), 401);
 
   // comprobamos que se ingrese una fecha, ya que el vacunador la ingresa a mano
   if (!req.body.vaccinationDate)
     return next(
-      new Error("Debe ingresar una fecha para sacar el turno de forma local")
+      new AppError(
+        "Debe ingresar una fecha para sacar el turno de forma local",
+        400
+      )
     );
 
   //asignamos el centro de vacunacion del vacunador que esta logeado
@@ -68,10 +75,17 @@ exports.getAppointments = catchAsync(async (req, res, next) => {
   const queryOptions = {};
 
   if (req.user.rol == "user") queryOptions.patientDni = req.user.dni;
-  if (req.user.rol == "vacc")
+  if (req.user.rol == "vacc") {
     queryOptions.vaccinationCenter = req.user.vaccinationCenter;
+    queryOptions.vaccinationDate = new Date().toDateString();
+  }
 
-  console.log(req.user.dni);
+  console.log(queryOptions);
+
+  // console.log(req.user.dni);
+  // 2022-05-12T16:59:21.354+00:00
+  // console.log(queryOptions.vaccinationDate);
+  // console.log(new Date().toDateString());
 
   const appointments = await Appointment.find(queryOptions);
 
@@ -127,24 +141,30 @@ const getAppointmentDate = (birthday, vaccine, isRisk) => {
   let age = currentDate.getFullYear() - birthdayDate.getFullYear();
   age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
 
+  // prueba para obtener probar el tema de los turnos
+  // return currentDate.toDateString();
+
   // condiciones para la Gripe
   if ((age < 18 || age < 60) && vaccine === "Gripe") {
     currentDate.setUTCMonth(currentDate.getMonth() + 6);
-    return currentDate;
+    return currentDate.toDateString();
   } else if (vaccine === "Gripe") {
     currentDate.setUTCMonth(currentDate.getMonth() + 3);
-    return currentDate;
+    return currentDate.toDateString();
   }
 
   // condiciones para el Covid
   if (age > 60 && vaccine.startsWith("Covid")) {
     currentDate.setUTCDate(currentDate.getDate() + 7);
-    return currentDate;
+    return currentDate.toDateString();
   } else if (isRisk && vaccine.startsWith("Covid")) {
     currentDate.setUTCDate(currentDate.getDate() + 7);
-    return currentDate;
+    return currentDate.toDateString();
   } else if (vaccine.startsWith("Covid")) {
-    throw new Error("Si no sos de riesgo tenes que sacar el turno local...");
+    throw new AppError(
+      "Si no sos de riesgo tenes que sacar el turno local...",
+      403
+    );
   }
-  throw new Error("Algo salio mal a asignar el turno....");
+  throw new AppError("Algo salio mal a asignar el turno....", 500);
 };

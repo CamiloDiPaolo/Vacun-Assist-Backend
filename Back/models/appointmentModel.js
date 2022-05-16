@@ -18,11 +18,11 @@ const appointmentSchema = mongoose.Schema({
     type: Number,
   },
   vaccinationDate: {
-    type: Date,
+    type: String,
   },
   issueDate: {
-    type: Date,
-    default: Date.now(),
+    type: String,
+    default: new Date().toDateString(),
   },
   vaccinationCenter: {
     type: String,

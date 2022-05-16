@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
     // el vacunatorio solo cuenta para los usuarios con rol de Vacunador(vacc)
     // agregar un validador: si es rol vacc debe tener un vacunatorio asignado si o si
     type: String,
+    enum: ["1", "2", "3"],
   },
   //////////////////////////////////////////////////////////////////////////////
   // COSAS AGREGADAS POR LA API DE RENAPER

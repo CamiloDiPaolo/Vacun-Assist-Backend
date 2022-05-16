@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const catchAsync = require("../utils/cathAsync");
+const AppError = require("../utils/appError");
 // modulo usado para ahcer peticiones a la API de renaper
 const axios = require("axios");
 const URLRenaper = "http://localhost:8000/person/lookup";
@@ -29,7 +30,10 @@ exports.getUser = catchAsync(async (req, res, next) => {
 
   if (!user)
     return next(
-      new Error(`No se encontro al usuario con el dni: ${req.params.dni}`)
+      new AppError(
+        `No se encontro al usuario con el dni: ${req.params.dni}`,
+        404
+      )
     );
 
   res.status(200).json({
@@ -59,19 +63,20 @@ exports.userRenaper = async (usrData) => {
     const userEspañol = resRenaper.data.data;
 
     // chequeamos si se encontro a la persona
-    if (!userEspañol) throw new Error("No se encontro a la persona");
+    if (!userEspañol) throw new AppError("No se encontro a la persona", 404);
 
     // si la persona es una persona juridica devolvemos un error
     if (userEspañol.tipoPersona === "JURIDICA")
-      throw new Error("Solo se aceptan personas fisicas");
+      throw new AppError("Solo se aceptan personas fisicas", 401);
 
     // pasamos la data del usuario al formato de la base de datos
     const newUserData = dataFormat(userEspañol, usrData);
 
     return newUserData;
   } catch (err) {
-    throw new Error(
-      `Ocurrio un error con la API de Renaper. El error fue: ${err}`
+    throw new AppError(
+      `Ocurrio un error con la API de Renaper. El error fue: ${err}`,
+      404
     );
   }
 };
@@ -93,7 +98,7 @@ exports.validRenaper = async (dni) => {
 
     return resRenaper.data.data;
   } catch (err) {
-    return new Error("Hubo un problema con la API del renaper");
+    return new AppError("Hubo un problema con la API del renaper", 404);
   }
 };
 /**
@@ -103,7 +108,8 @@ exports.validRenaper = async (dni) => {
  * @returns el objeto usrEng con los datos agregados y formateados de usrEsp
  */
 const dataFormat = (usrEsp, usrEng) => {
-  usrEng.fullName = `${usrEsp.nombre} ${usrEsp.apellido}`;
+  // por los casos en los que se tiene todo el nombre en el apellido
+  usrEng.fullName = `${usrEsp.nombre ? "" : usrEsp.nombre} ${usrEsp.apellido}`;
   usrEng.cuil = usrEsp.idPersona;
   usrEng.dni = usrEsp.numeroDocumento;
 

@@ -4,11 +4,14 @@ const catchAsync = require("../utils/cathAsync");
 const { promisify } = require("util");
 const sendMail = require("../utils/email");
 const userController = require("../controllers/userController");
+const AppError = require("../utils/appError");
 
 // estas deberian ser varaibles de entorno pero por ahora las declaro aca
-const JWT_EXPIRES_IN = "10m";
-const JWT_SECRET = "my-ultra-secreto-y-ultra-largo-jwt";
-const JWT_COOKIE_EXPIRES_IN = 90;
+const {
+  JWT_EXPIRES_IN,
+  JWT_SECRET,
+  JWT_COOKIE_EXPIRES_IN,
+} = require("../config");
 ////////////////
 
 /**
@@ -83,7 +86,12 @@ const createSendTokenMail = (val, res, mail) => {
 exports.signup = catchAsync(async (req, res, next) => {
   //verificamos que no se quiera crear un vacunador o admin
   if (["admin", "vacc"].includes(req.body.rol))
-    return next(new Error("Solo el administrador puede hacer eso"));
+    return next(new AppError("Solo el administrador puede hacer eso", 403));
+
+  // verificamos que no exista alguien conese dni
+  const user = await User.find({ dni: req.body.dni });
+  if (user.length)
+    return next(new AppError("Ya existe un usuario con ese dni", 400));
 
   // consultamos la api del renaper para completar los datos
   // req.body.email = req.body.email.toLowerCase();
@@ -93,30 +101,44 @@ exports.signup = catchAsync(async (req, res, next) => {
   res.cookie("userAuthData", dataNewUser);
 
   // creamos el JWT y lo almacenamos en la cookie
-  createSendTokenMail("1234", res, req.body.email);
+  createSendTokenMail(randomCode(), res, req.body.email);
 });
 exports.signupVacc = catchAsync(async (req, res, next) => {
   //verificamos que solo se crea un vacunador
   if (["admin", "user"].includes(req.body.rol))
     return next(
-      new Error("Solo solo se pueden registrar vacunadores de esta forma")
+      new AppError("Solo se pueden registrar vacunadores de esta forma", 403)
     );
+  // verificamos que no exista alguien conese dni
+  const user = await User.find({ dni: req.body.dni });
+  if (user.length)
+    return next(new AppError("Ya existe un usuario con ese dni", 400));
 
   if (!req.body.vaccinationCenter)
     return next(
-      new Error("Un vacunador debe tener asignado un centro de vacunacion")
+      new AppError(
+        "Un vacunador debe tener asignado un centro de vacunacion",
+        400
+      )
     );
 
-  // consultamos la api del renaper para completar los datos
   // req.body.email = req.body.email.toLowerCase();
-  req.body.password = "contraseña aleatoria";
+  req.body.password = randomPassword();
+  req.body.rol = "vacc";
+
+  // enviamos la contraseña al vacunador
+  sendMail({
+    message: `Tu contraseña es: ${req.body.password}`,
+    email: req.body.email,
+  });
+
   const dataNewUser = await userController.userRenaper(req.body);
 
   // guardamos los datos del usuario que quiere registrarse en una cookie
   res.cookie("userAuthData", dataNewUser);
 
   // creamos el JWT y lo almacenamos en la cookie
-  createSendTokenMail("1234", res, req.body.email);
+  createSendTokenMail(randomCode(), res, req.body.email);
 });
 /**
  * Esta funcion inicia la sesion de un usuario existente
@@ -138,13 +160,15 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // chequeamos si ingresoe l dni y la contraseña
   if (!dni || !password)
-    return next(new Error("Por favor ingrese el dni y la contraseña"));
+    return next(new AppError("Por favor ingrese el dni y la contraseña", 400));
 
   // chequeamos i existe un usuario para esos datos
   const user = await User.findOne({ dni, password, code });
   console.log(user);
   if (!user)
-    return next(new Error("Alguno de los datos ingresados es incorrecto"));
+    return next(
+      new AppError("Alguno de los datos ingresados es incorrecto", 404)
+    );
 
   // console.log("HOST:", req.headers.host);
 
@@ -179,7 +203,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // conseguimos el token y chequeamos si existe
   if (req.cookies && req.cookies.jwt) token = req.cookies.jwt;
-  if (!token) return next(new Error("No se encontro el Json Web Token.."));
+  if (!token) return next(new AppError("No estas logeado/registrado..", 401));
 
   // verificamos si el token es correcto
   // para eso convertimos el metodo en una promesa, ya que estamos en una funcion async
@@ -187,7 +211,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // chequeamos si el token decodificado corresponde a un usuario existente
   const user = await User.findById(decodedToken.id);
-  if (!user) return next(new Error("El usuario no existe mas.."));
+  if (!user) return next(new AppError("El usuario no existe mas..", 404));
 
   // podemos realizar mas checks que nos interesen
   req.user = user;
@@ -204,14 +228,14 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
 
   // conseguimos el token y chequeamos si existe
   if (req.cookies && req.cookies.jwtMail) token = req.cookies.jwtMail;
-  if (!token) return next(new Error("No se encontro el Json Web Token.."));
+  if (!token) return next(new AppError("No estas logeado/registrado..", 401));
 
   // verificamos si el token es correcto
   // para eso convertimos el metodo en una promesa, ya que estamos en una funcion async
   const decodedToken = await promisify(jwt.verify)(token, JWT_SECRET);
 
   if (!(decodedToken.id == req.body.token))
-    return next(new Error("El codido de verificacion es incorrecto"));
+    return next(new AppError("El codido de verificacion es incorrecto", 401));
 
   // almacenamos el codigo en el usuario y lo creamos
   req.cookies.userAuthData.code = req.body.token + "";
@@ -228,7 +252,19 @@ exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     console.log(roles, req.user.rol);
     if (!roles.includes(req.user.rol))
-      return next(new Error(`El rol:  ${req.user.rol}  no esta en la lista`));
+      return next(
+        new AppError(`El rol:  ${req.user.rol}  no esta en la lista`, 401)
+      );
     next();
   };
+};
+
+const randomPassword = () => {
+  // hay que mejorar esto
+  return "12345678";
+};
+
+const randomCode = () => {
+  // hay que mejorar esto
+  return "1234";
 };
