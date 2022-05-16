@@ -168,3 +168,31 @@ const getAppointmentDate = (birthday, vaccine, isRisk) => {
   }
   throw new AppError("Algo salio mal a asignar el turno....", 500);
 };
+
+exports.validateAppointment = catchAsync(async (req, res, next) => {
+  const appointment = await Appointment.findById(req.body.id);
+
+  if (!appointment)
+    throw new AppError(
+      "No se encontro un turno que coincida con los datos ",
+      400
+    );
+  if (["Finalizado", "Cancelado"].includes(appointment.state))
+    throw new AppError("El turno no puede cambiar de estado", 400);
+
+  if (!["Finalizado", "Cancelado"].includes(req.body.state))
+    throw new AppError("El estado debe ser solo Finalizado o Cancelado", 400);
+
+  appointment.state = req.body.state;
+
+  console.log(appointment);
+
+  await Appointment.findByIdAndUpdate(appointment.id, appointment);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      appointment,
+    },
+  });
+});

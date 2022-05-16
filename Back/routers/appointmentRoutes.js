@@ -21,6 +21,15 @@ appointmentRouter
     appointmentController.createAppointmentLocal
   );
 
+// validar turno
+appointmentRouter
+  .route("/validate")
+  .post(
+    authController.protect,
+    authController.restrictTo("vacc"),
+    appointmentController.validateAppointment
+  );
+
 appointmentRouter
   .route("/")
   .get(authController.protect, appointmentController.getAppointments);
