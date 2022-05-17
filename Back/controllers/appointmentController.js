@@ -80,13 +80,6 @@ exports.getAppointments = catchAsync(async (req, res, next) => {
     queryOptions.vaccinationDate = new Date().toDateString();
   }
 
-  console.log(queryOptions);
-
-  // console.log(req.user.dni);
-  // 2022-05-12T16:59:21.354+00:00
-  // console.log(queryOptions.vaccinationDate);
-  // console.log(new Date().toDateString());
-
   const appointments = await Appointment.find(queryOptions);
 
   res.status(200).json({
@@ -170,7 +163,7 @@ const getAppointmentDate = (birthday, vaccine, isRisk) => {
 };
 
 exports.validateAppointment = catchAsync(async (req, res, next) => {
-  const appointment = await Appointment.findById(req.body.id);
+  let appointment = await Appointment.findById(req.body.id);
 
   if (!appointment)
     throw new AppError(
@@ -185,9 +178,29 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
 
   appointment.state = req.body.state;
 
-  console.log(appointment);
-
   await Appointment.findByIdAndUpdate(appointment.id, appointment);
+
+  // una vez que se valida correctamente el turno se crea uno nuevo dependiendo el tipo de vacuna
+  const vaccine = appointment.vaccine;
+  if (!(vaccine == "FiebreAmarilla" || vaccine == "Covid3")) {
+    const newDate = new Date();
+
+    // si la vacuna es gripe el turno se da a un año, si es covid a 3 meses
+    newDate.setUTCFullYear(newDate.getFullYear() + 1);
+    if (vaccine.startsWith("Covid"))
+      newDate.setUTCMonth(newDate.getMonth() + 1);
+
+    // eliminamos los campos para que crea mongoose para no tener problemas al crear uno nuevo
+    const newAppointment = {
+      state: "Activo",
+      patientDni: appointment.patientDni,
+      vaccine: appointment.vaccine,
+      vaccinationDate: newDate.toDateString(),
+      issueDate: new Date().toDateString(),
+      vaccinationCenter: appointment.vaccinationCenter,
+    };
+    appointment = await Appointment.create(newAppointment);
+  }
 
   res.status(200).json({
     status: "success",
