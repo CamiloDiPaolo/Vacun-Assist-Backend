@@ -3,7 +3,7 @@ const catchAsync = require("../utils/cathAsync");
 const AppError = require("../utils/appError");
 // modulo usado para ahcer peticiones a la API de renaper
 const axios = require("axios");
-const URLRenaper = "http://localhost:8000/person/lookup";
+const { URL_RENAPER } = require("../config");
 
 exports.createUser = catchAsync(async (req, res, next) => {
   const newUser = User.create(req.body);
@@ -41,6 +41,37 @@ exports.getUser = catchAsync(async (req, res, next) => {
     data: user,
   });
 });
+exports.updateHealthData = catchAsync(async (req, res, next) => {
+  // comprobamos que se hayan ingresado todos los datos
+  const {
+    isRisk,
+    anyCovidVaccine,
+    lastCovidVaccineDate,
+    fluVaccineYear,
+    yellowFeverVaccine,
+  } = req.body;
+  if (
+    isRisk == undefined ||
+    anyCovidVaccine == undefined ||
+    lastCovidVaccineDate == undefined ||
+    fluVaccineYear == undefined ||
+    yellowFeverVaccine == undefined
+  )
+    return next(
+      new AppError("Falto ingresar alguno de los datos de salud", 400)
+    );
+
+  // sie sta todo oc actualizamos los datos
+  req.user.healthData = req.body;
+  req.user.healthData.updatedData = true;
+
+  await User.findByIdAndUpdate(req.user.id, req.user);
+
+  res.status(201).json({
+    status: "success",
+    data: req.user,
+  });
+});
 /**
  * Esta funcion retorna lso datos de una persona del renaper con el formato utilizado en la base de datos
  * @param {Object} usrData son los datos del usuario utilizados para el registro: dni, password, email y rol
@@ -52,7 +83,7 @@ exports.userRenaper = async (usrData) => {
     const options = {
       url: "/",
       method: "get",
-      baseURL: URLRenaper,
+      baseURL: URL_RENAPER,
       headers: { "X-Requested-With": "XMLHttpRequest" },
       data: { dni: usrData.dni },
       // data: { dni: "43521062" },
@@ -109,7 +140,7 @@ exports.validRenaper = async (dni) => {
  */
 const dataFormat = (usrEsp, usrEng) => {
   // por los casos en los que se tiene todo el nombre en el apellido
-  usrEng.fullName = `${usrEsp.nombre ? "" : usrEsp.nombre} ${usrEsp.apellido}`;
+  usrEng.fullName = `${usrEsp.nombre ? usrEsp.nombre : ""} ${usrEsp.apellido}`;
   usrEng.cuil = usrEsp.idPersona;
   usrEng.dni = usrEsp.numeroDocumento;
 

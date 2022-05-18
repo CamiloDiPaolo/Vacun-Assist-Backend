@@ -19,7 +19,9 @@ app.use(morgan());
 
 /// middlewares para aceptar el manejo de cookies
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ACCES_URL.join(" "));
+  // ALLOWED_ACCES_URL[0] para probar cosa del FRONT
+  // ALLOWED_ACCES_URL[1] para probar cosa del BACK
+  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ACCES_URL[0]);
   res.setHeader(
     "Access-Control-Allow-Headers",
     "X-Requested-With,content-type"

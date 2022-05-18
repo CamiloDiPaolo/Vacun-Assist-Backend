@@ -26,6 +26,14 @@ userRouter
     authController.restrictTo("admin"),
     userController.getAllUsers
   );
-userRouter.route("/:dni").get(userController.getUser);
+// actualizacion de datos de salud
+userRouter
+  .route("/healthData")
+  .put(
+    authController.protect,
+    authController.restrictTo("user"),
+    userController.updateHealthData
+  );
+// userRouter.route("/:dni").get(userController.getUser);
 
 module.exports = userRouter;
