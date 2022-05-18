@@ -209,3 +209,38 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.cancelAppointment = catchAsync(async (req, res, next) => {
+  if (!req.body.id)
+    return next(
+      new AppError("Debe ingresar una id para eliminar el turno..", 400)
+    );
+  if (req.body.id.length != 24)
+    return next(
+      new AppError("El formato de id que ingresaste es incorrecto..", 400)
+    );
+
+  const appointment = await Appointment.findOne({
+    patientDni: req.user.dni,
+    _id: req.body.id,
+  });
+
+  if (!appointment) return next(new AppError("no se encontro un turno..", 400));
+
+  if (appointment.state != "Activo")
+    return next(
+      new AppError("no podes cancelar un turno que no este activo..", 400)
+    );
+  appointment.state = "Cancelado";
+  appointment.vaccinationDate = "Cancelado";
+
+  await Appointment.findByIdAndUpdate(appointment.id, appointment);
+
+  console.log(appointment);
+  res.status(200).json({
+    status: "success",
+    data: {
+      appointment,
+    },
+  });
+});

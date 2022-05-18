@@ -29,7 +29,15 @@ appointmentRouter
     authController.restrictTo("vacc"),
     appointmentController.validateAppointment
   );
-
+// cancelar un turno como usuario
+appointmentRouter
+  .route("/cancel")
+  .post(
+    authController.protect,
+    authController.restrictTo("user"),
+    appointmentController.cancelAppointment
+  );
+// obtener los turnos
 appointmentRouter
   .route("/")
   .get(authController.protect, appointmentController.getAppointments);
