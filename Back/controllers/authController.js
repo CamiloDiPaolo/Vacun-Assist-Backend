@@ -98,7 +98,12 @@ exports.signup = catchAsync(async (req, res, next) => {
   const dataNewUser = await userController.userRenaper(req.body);
 
   // guardamos los datos del usuario que quiere registrarse en una cookie
-  res.cookie("userAuthData", dataNewUser);
+  const cookieOptions = {
+    expires: new Date(Date.now() + 10 * 60 * 1000),
+    secure: false, // este campo en PRODUCCION deberia ser verdadero
+    httpOnly: true,
+  };
+  res.cookie("userAuthData", dataNewUser, cookieOptions);
 
   // creamos el JWT y lo almacenamos en la cookie
   createSendTokenMail(randomCode(), res, req.body.email);
@@ -228,7 +233,8 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
 
   // conseguimos el token y chequeamos si existe
   if (req.cookies && req.cookies.jwtMail) token = req.cookies.jwtMail;
-  if (!token) return next(new AppError("No estas logeado/registrado..", 401));
+  if (!token)
+    return next(new AppError("no enviaste el codigo de verificacion..", 401));
 
   // verificamos si el token es correcto
   // para eso convertimos el metodo en una promesa, ya que estamos en una funcion async
@@ -241,7 +247,15 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
   req.cookies.userAuthData.code = req.body.token + "";
   const newUser = await User.create(req.cookies.userAuthData);
 
-  createSendToken(newUser, res);
+  // limpiamos las cookies que no usamos mas y logeamos al cliente
+  res.clearCookie("jwt");
+  res.clearCookie("jwtMail");
+  res.clearCookie("userAuthData");
+
+  // esto va solo en modo dev
+  const mismoSitio = req.headers.host === "127.0.0.1:8082";
+  // si todo esta ok enviamos el token
+  createSendToken(newUser, res, mismoSitio);
 });
 /**
  * Esta funcion restringe el acceso a las funcionalidades siguientes a los roles pasados por parametros
