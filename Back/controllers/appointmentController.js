@@ -23,7 +23,7 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
   req.body.vaccinationDate = getAppointmentDate(
     req.user.birthday,
     req.body.vaccine,
-    true
+    req.user.isRisk
   );
 
   const newAppointment = await Appointment.create(req.body);

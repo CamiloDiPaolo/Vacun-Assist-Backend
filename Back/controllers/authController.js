@@ -164,8 +164,8 @@ exports.login = catchAsync(async (req, res, next) => {
   const { dni, password, code } = { ...req.body };
 
   // chequeamos si ingresoe l dni y la contraseña
-  if (!dni || !password)
-    return next(new AppError("Por favor ingrese el dni y la contraseña", 400));
+  if (!dni || !password || !code)
+    return next(new AppError("Por favor ingresa todos los datos", 400));
 
   // chequeamos i existe un usuario para esos datos
   const user = await User.findOne({ dni, password, code });

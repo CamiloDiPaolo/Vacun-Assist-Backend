@@ -36,14 +36,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["1", "2", "3"],
   },
-  healthData: {
-    isRisk: { type: Boolean, default: false },
-    anyCovidVaccine: { type: Boolean, default: false },
-    lastCovidVaccineDate: { type: String, default: "" },
-    fluVaccineYear: { type: String, default: "" },
-    yellowFeverVaccine: { type: Boolean, default: false },
-    updatedData: { type: Boolean, default: false },
-  },
+  // healthData: {
+  //   isRisk: { type: Boolean, default: false },
+  //   anyCovidVaccine: { type: Boolean, default: false },
+  //   lastCovidVaccineDate: { type: String, default: "" },
+  //   fluVaccineYear: { type: String, default: "" },
+  //   yellowFeverVaccine: { type: Boolean, default: false },
+  //   updatedData: { type: Boolean, default: false },
+  // },
+  isRisk: Boolean,
+  updatedHealthData: { type: Boolean, default: false },
   //////////////////////////////////////////////////////////////////////////////
   // COSAS AGREGADAS POR LA API DE RENAPER
   fullName: {

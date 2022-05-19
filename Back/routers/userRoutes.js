@@ -34,6 +34,12 @@ userRouter
     authController.restrictTo("user"),
     userController.updateHealthData
   );
-// userRouter.route("/:dni").get(userController.getUser);
+
+// obtenes los datos del usuario actualmente registrado
+userRouter
+  .route("/get-logged-user")
+  .get(authController.protect, (req, res, next) => {
+    res.status(200).json({ status: "success", data: req.user });
+  });
 
 module.exports = userRouter;
