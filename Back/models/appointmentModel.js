@@ -29,6 +29,7 @@ const appointmentSchema = mongoose.Schema({
     required: [true, "Un turno debe tener una vacunatorio"],
     enum: ["1", "2", "3"],
   },
+  lot: String,
 });
 
 const Appointment = mongoose.model("appointments", appointmentSchema);

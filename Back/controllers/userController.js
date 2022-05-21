@@ -42,28 +42,9 @@ exports.getUser = catchAsync(async (req, res, next) => {
   });
 });
 exports.updateHealthData = catchAsync(async (req, res, next) => {
-  // comprobamos que se hayan ingresado todos los datos
-  // const {
-  //   isRisk,
-  //   anyCovidVaccine,
-  //   lastCovidVaccineDate,
-  //   fluVaccineYear,
-  //   yellowFeverVaccine,
-  // } = req.body;
-  // if (
-  //   isRisk == undefined ||
-  //   anyCovidVaccine == undefined ||
-  //   lastCovidVaccineDate == undefined ||
-  //   fluVaccineYear == undefined ||
-  //   yellowFeverVaccine == undefined
-  // )
-  //   return next(
-  //     new AppError("Falto ingresar alguno de los datos de salud", 400)
-  //   );
-
-  // sie sta todo oc actualizamos los datos
+  // si esta todo oc actualizamos los datos
   req.user.isRisk = req.body.isRisk;
-  req.user.updatedData = true;
+  req.user.updatedHealthData = true;
 
   await User.findByIdAndUpdate(req.user.id, req.user);
 

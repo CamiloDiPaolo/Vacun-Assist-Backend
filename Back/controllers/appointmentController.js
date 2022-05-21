@@ -176,7 +176,11 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
   if (!["Finalizado", "Cancelado"].includes(req.body.state))
     throw new AppError("El estado debe ser solo Finalizado o Cancelado", 400);
 
+  if (!req.body.lot)
+    throw new AppError("No se ingreso el lote de la vacuna", 400);
+
   appointment.state = req.body.state;
+  appointment.lot = req.body.lot;
 
   await Appointment.findByIdAndUpdate(appointment.id, appointment);
 
