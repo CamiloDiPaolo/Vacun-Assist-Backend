@@ -3,7 +3,7 @@ const catchAsync = require("../utils/cathAsync");
 const AppError = require("../utils/appError");
 // modulo usado para ahcer peticiones a la API de renaper
 const axios = require("axios");
-const { URL_RENAPER } = require("../config");
+const { URL_RENAPER, KEY_RENAPER } = require("../config");
 
 exports.createUser = catchAsync(async (req, res, next) => {
   const newUser = User.create(req.body);
@@ -59,38 +59,49 @@ exports.updateHealthData = catchAsync(async (req, res, next) => {
  * @returns un objeto de usuario con todos los datos del renaper formateados, o tira un error si algo sale mal con la API
  */
 exports.userRenaper = async (usrData) => {
+  // objeto de configuracion axios
+  const options = {
+    url: "/person/lookup",
+    method: "post",
+    baseURL: URL_RENAPER,
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+      "X-Api-Key": KEY_RENAPER,
+      "Content-Type": "application/json",
+    },
+    data: { dni: usrData.dni },
+    // data: { dni: "43521062" },
+    timeout: 5000,
+  };
+  // obtenemos los datos de la persona del renaper
+  // chequeamos que el error sea un error reintenable (403)
+  let resRenaper;
   try {
-    // objeto de configuracion axios
-    const options = {
-      url: "/",
-      method: "get",
-      baseURL: URL_RENAPER,
-      headers: { "X-Requested-With": "XMLHttpRequest" },
-      data: { dni: usrData.dni },
-      // data: { dni: "43521062" },
-      timeout: 5000,
-    };
-    // obtenemos los datos de la persona del renaper
-    const resRenaper = await axios(options);
-    const userEspañol = resRenaper.data.data;
-
-    // chequeamos si se encontro a la persona
-    if (!userEspañol) throw new AppError("No se encontro a la persona", 404);
-
-    // si la persona es una persona juridica devolvemos un error
-    if (userEspañol.tipoPersona === "JURIDICA")
-      throw new AppError("Solo se aceptan personas fisicas", 401);
-
-    // pasamos la data del usuario al formato de la base de datos
-    const newUserData = dataFormat(userEspañol, usrData);
-
-    return newUserData;
+    resRenaper = await axios(options);
   } catch (err) {
+    if (err.response.status == 403)
+      throw new AppError("Error reintentable del renaper", 403);
     throw new AppError(
       `Ocurrio un error con la API de Renaper. El error fue: ${err}`,
       404
     );
   }
+  console.log(resRenaper);
+  const userEspañol = resRenaper.data.data
+    ? resRenaper.data.data
+    : resRenaper.data;
+
+  // chequeamos si se encontro a la persona
+  if (!userEspañol) throw new AppError("No se encontro a la persona", 404);
+
+  // si la persona es una persona juridica devolvemos un error
+  if (userEspañol.tipoPersona === "JURIDICA")
+    throw new AppError("Solo se aceptan personas fisicas", 401);
+
+  // pasamos la data del usuario al formato de la base de datos
+  const newUserData = dataFormat(userEspañol, usrData);
+
+  return newUserData;
 };
 /**
  * Esta funcion retorna si un dni es valido para la API de renaper

@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
   //   yellowFeverVaccine: { type: Boolean, default: false },
   //   updatedData: { type: Boolean, default: false },
   // },
-  isRisk: Boolean,
+  isRisk: { type: Boolean, default: false },
   updatedHealthData: { type: Boolean, default: false },
   //////////////////////////////////////////////////////////////////////////////
   // COSAS AGREGADAS POR LA API DE RENAPER
