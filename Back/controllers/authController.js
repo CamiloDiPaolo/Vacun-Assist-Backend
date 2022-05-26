@@ -84,10 +84,6 @@ const createSendTokenMail = (val, res, mail) => {
  * @param {function} next es la funcion que utilizamos para seguir con el flujo de middlewares
  */
 exports.signup = catchAsync(async (req, res, next) => {
-  //verificamos que no se quiera crear un vacunador o admin
-  if (["admin", "vacc"].includes(req.body.rol))
-    return next(new AppError("Solo el administrador puede hacer eso", 403));
-
   // verificamos que no exista alguien conese dni
   const user = await User.find({ dni: req.body.dni });
   if (user.length)
@@ -95,6 +91,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   // consultamos la api del renaper para completar los datos
   // req.body.email = req.body.email.toLowerCase();
+  req.body.rol = "user";
   const dataNewUser = await userController.userRenaper(req.body);
 
   // guardamos los datos del usuario que quiere registrarse en una cookie
@@ -109,11 +106,6 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendTokenMail(randomCode(), res, req.body.email);
 });
 exports.signupVacc = catchAsync(async (req, res, next) => {
-  //verificamos que solo se crea un vacunador
-  if (["admin", "user"].includes(req.body.rol))
-    return next(
-      new AppError("Solo se pueden registrar vacunadores de esta forma", 403)
-    );
   // verificamos que no exista alguien conese dni
   const user = await User.find({ dni: req.body.dni });
   if (user.length)
@@ -280,5 +272,9 @@ const randomPassword = () => {
 
 const randomCode = () => {
   // hay que mejorar esto
-  return "1234";
+  let code = (Math.random() * 10000).toFixed(0);
+  code = code < 1000 ? 1001 : code;
+  code = code == 10000 ? 9999 : code; // seria gracioso que justo justo sea 10000, osea es una probabilidad re chica alta mala leche tenia si justo pasaba esto en la demo jajaja igual ni idea pq escribo este comentario tan largo si nadie lo va a leer en fin aguante la fafafa
+  // return code;
+  return 1234; // por ahora retorno esto para probar
 };

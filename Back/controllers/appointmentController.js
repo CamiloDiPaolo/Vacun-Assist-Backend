@@ -3,7 +3,22 @@ const userController = require("./userController");
 const catchAsync = require("../utils/cathAsync");
 const AppError = require("../utils/appError");
 
+const MAX_COVID_DOSIS = 4;
+
 exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
+  if (!req.body.vaccine)
+    return next(
+      new AppError("Tenes que ingresar una vacuna para solicitar un turno"),
+      400
+    );
+  if (!req.body.vaccinationCenter)
+    return next(
+      new AppError(
+        "Tenes que ingresar una centro de vacunacion para solicitar un turno"
+      ),
+      400
+    );
+
   // si el usuario ya esta vacunado contra esa vacuna no se permite sacar el turno
   const err = await appointmentValidation(
     req.user.dni,
@@ -77,7 +92,11 @@ exports.getAppointments = catchAsync(async (req, res, next) => {
   if (req.user.rol == "user") queryOptions.patientDni = req.user.dni;
   if (req.user.rol == "vacc") {
     queryOptions.vaccinationCenter = req.user.vaccinationCenter;
-    queryOptions.vaccinationDate = new Date().toDateString();
+    queryOptions.vaccinationDate = new Date();
+    queryOptions.vaccinationDate.setHours(0);
+    queryOptions.vaccinationDate.setMinutes(0);
+    queryOptions.vaccinationDate.setSeconds(0);
+    queryOptions.vaccinationDate.setMilliseconds(0);
   }
 
   const appointments = await Appointment.find(queryOptions);
@@ -106,20 +125,38 @@ const hasAppointment = async (dni, vac) => {
 
   return allAppointment.length;
 };
+const hasActiveAppointment = async (dni, vac) => {
+  const allAppointment = await Appointment.find({
+    state: "Activo",
+    vaccine: vac,
+    patientDni: dni,
+  });
+
+  return allAppointment.length;
+};
 const appointmentValidation = async (dni, vaccine, birthday) => {
   const birthdayDate = new Date(birthday);
   const currentDate = new Date();
   let age = currentDate.getFullYear() - birthdayDate.getFullYear();
   age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
+
+  // corroboramos la cantidad de turnos contra el covid que tiene
+  if (
+    vaccine == "Covid" &&
+    (await hasAppointment(dni, vaccine)) >= MAX_COVID_DOSIS
+  )
+    return `No podes darte mas de ${MAX_COVID_DOSIS} vacunas contra el Covid 😅`;
+
   // si ya tiene un turno o se vacuno contra la vacuna
-  if (await hasAppointment(dni, vaccine))
-    return "Usted ya esta vacunado contra esa vacuna o tiene un turno pendiente contra la misma";
+  if (await hasActiveAppointment(dni, vaccine))
+    return "Usted ya tiene un turno pendiente contra la misma";
   // si se va a dar las vacunas de covid corroboramos que sea en orden
-  if (!(await isVaccinated(dni, "Covid1")) && vaccine == "Covid2")
-    return "No puede darse la 2da dosis sin antes darse la primera";
-  if (!(await isVaccinated(dni, "Covid2")) && vaccine == "Covid3")
-    return "No puede darse la 3ra dosis sin antes darse la segunda";
-  if (age < 18 && vaccine.startsWith("Covid"))
+  // if (!(await isVaccinated(dni, "Covid1")) && vaccine == "Covid2")
+  //   return "No puede darse la 2da dosis sin antes darse la primera";
+  // if (!(await isVaccinated(dni, "Covid2")) && vaccine == "Covid3")
+  //   return "No puede darse la 3ra dosis sin antes darse la segunda";
+
+  if (age < 18 && vaccine == "Covid")
     return "Debido a tu edad no podes vacunarte con esta vacuna😅";
   if (age > 60 && vaccine == "FiebreAmarilla")
     return "Debido a tu edad no podes vacunarte con esta vacuna😅";
@@ -131,29 +168,32 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
 const getAppointmentDate = (birthday, vaccine, isRisk) => {
   const birthdayDate = new Date(birthday);
   const currentDate = new Date();
+
+  currentDate.setHours(0);
+  currentDate.setMinutes(0);
+  currentDate.setSeconds(0);
+  currentDate.setMilliseconds(0);
+
   let age = currentDate.getFullYear() - birthdayDate.getFullYear();
   age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
-
-  // prueba para obtener probar el tema de los turnos
-  // return currentDate.toDateString();
 
   // condiciones para la Gripe
   if ((age < 18 || age < 60) && vaccine === "Gripe") {
     currentDate.setUTCMonth(currentDate.getMonth() + 6);
-    return currentDate.toDateString();
+    return currentDate;
   } else if (vaccine === "Gripe") {
     currentDate.setUTCMonth(currentDate.getMonth() + 3);
-    return currentDate.toDateString();
+    return currentDate;
   }
 
   // condiciones para el Covid
-  if (age > 60 && vaccine.startsWith("Covid")) {
+  if (age > 60 && vaccine == "Covid") {
     currentDate.setUTCDate(currentDate.getDate() + 7);
-    return currentDate.toDateString();
-  } else if (isRisk && vaccine.startsWith("Covid")) {
+    return currentDate;
+  } else if (isRisk && vaccine == "Covid") {
     currentDate.setUTCDate(currentDate.getDate() + 7);
-    return currentDate.toDateString();
-  } else if (vaccine.startsWith("Covid")) {
+    return currentDate;
+  } else if (vaccine == "Covid") {
     throw new AppError(
       "Los turnos para esta vacuna se sacan de forma manual. Acércate a tu vacunatorio más cercano y solicitalo!",
       403
@@ -178,9 +218,12 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
 
   if (!req.body.lot)
     throw new AppError("No se ingreso el lote de la vacuna", 400);
+  if (!req.body.mark)
+    throw new AppError("No se ingreso la marca de la vacuna", 400);
 
   appointment.state = req.body.state;
   appointment.lot = req.body.lot;
+  appointment.mark = req.body.mark;
 
   await Appointment.findByIdAndUpdate(appointment.id, appointment);
 

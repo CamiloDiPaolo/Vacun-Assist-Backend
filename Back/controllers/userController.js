@@ -132,7 +132,7 @@ exports.validRenaper = async (dni) => {
  */
 const dataFormat = (usrEsp, usrEng) => {
   // por los casos en los que se tiene todo el nombre en el apellido
-  usrEng.fullName = `${usrEsp.nombre ? usrEsp.nombre : ""} ${usrEsp.apellido}`;
+  usrEng.fullName = ` ${usrEsp.apellido} ${usrEsp.nombre ? usrEsp.nombre : ""}`;
   usrEng.cuil = usrEsp.idPersona;
   usrEng.dni = usrEsp.numeroDocumento;
 

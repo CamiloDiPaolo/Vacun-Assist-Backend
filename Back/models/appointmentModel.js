@@ -12,24 +12,26 @@ const appointmentSchema = mongoose.Schema({
   vaccine: {
     type: String,
     required: [true, "Un turno debe tener una vacuna"],
-    enum: ["FiebreAmarilla", "Covid1", "Covid2", "Covid3", "Gripe"],
+    enum: ["FiebreAmarilla", "Covid", "Gripe"],
   },
   vaccinatorDni: {
     type: Number,
   },
   vaccinationDate: {
-    type: String,
+    type: Date,
   },
   issueDate: {
-    type: String,
-    default: new Date().toDateString(),
+    type: Date,
+    // default: new Date().toDateString(),
+    default: new Date(),
   },
   vaccinationCenter: {
     type: String,
     required: [true, "Un turno debe tener una vacunatorio"],
-    enum: ["1", "2", "3"],
+    enum: ["Hospital 9 de Julio", "Corralón municipal", "Polideportivo"],
   },
   lot: String,
+  mark: String,
 });
 
 const Appointment = mongoose.model("appointments", appointmentSchema);

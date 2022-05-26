@@ -12,10 +12,10 @@ app.use(express.json());
 app.use(morgan());
 app.use(cors());
 
-router.route("/person/lookup").get((req, res, next) => {
+router.route("/person/lookup").post((req, res, next) => {
   readRenaper(req, res, next);
 });
-router.route("/person/validate").get((req, res, next) => {
+router.route("/person/validate").post((req, res, next) => {
   validateRenaper(req, res, next);
 });
 // router.route("/:dni").get((req, res, next) => {
