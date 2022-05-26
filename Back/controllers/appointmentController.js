@@ -229,21 +229,24 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
 
   // una vez que se valida correctamente el turno se crea uno nuevo dependiendo el tipo de vacuna
   const vaccine = appointment.vaccine;
-  if (!(vaccine == "FiebreAmarilla" || vaccine == "Covid3")) {
+  if (!(vaccine == "FiebreAmarilla")) {
     const newDate = new Date();
+    newDate.setHours(0);
+    newDate.setMinutes(0);
+    newDate.setSeconds(0);
+    newDate.setMilliseconds(0);
 
     // si la vacuna es gripe el turno se da a un año, si es covid a 3 meses
     newDate.setUTCFullYear(newDate.getFullYear() + 1);
-    if (vaccine.startsWith("Covid"))
-      newDate.setUTCMonth(newDate.getMonth() + 3);
+    if (vaccine == "Covid") newDate.setUTCMonth(newDate.getMonth() + 3);
 
     // eliminamos los campos para que crea mongoose para no tener problemas al crear uno nuevo
     const newAppointment = {
       state: "Activo",
       patientDni: appointment.patientDni,
       vaccine: appointment.vaccine,
-      vaccinationDate: newDate.toDateString(),
-      issueDate: new Date().toDateString(),
+      vaccinationDate: newDate,
+      issueDate: new Date(),
       vaccinationCenter: appointment.vaccinationCenter,
     };
     appointment = await Appointment.create(newAppointment);
