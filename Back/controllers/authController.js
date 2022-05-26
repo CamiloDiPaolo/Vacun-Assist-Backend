@@ -91,7 +91,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   // verificamos que no exista alguien conese dni
   const user = await User.find({ dni: req.body.dni });
   if (user.length)
-    return next(new AppError("Ya existe un usuario con ese dni", 400));
+    return next(new AppError("El DNI ingresado ya está registrado.", 400));
 
   // consultamos la api del renaper para completar los datos
   // req.body.email = req.body.email.toLowerCase();
@@ -117,7 +117,7 @@ exports.signupVacc = catchAsync(async (req, res, next) => {
   // verificamos que no exista alguien conese dni
   const user = await User.find({ dni: req.body.dni });
   if (user.length)
-    return next(new AppError("Ya existe un usuario con ese dni", 400));
+    return next(new AppError("El DNI ingresado ya está registrado.", 400));
 
   if (!req.body.vaccinationCenter)
     return next(
@@ -172,7 +172,7 @@ exports.login = catchAsync(async (req, res, next) => {
   console.log(user);
   if (!user)
     return next(
-      new AppError("Alguno de los datos ingresados es incorrecto", 404)
+      new AppError("Alguno de los datos ingresados es incorrecto.", 404)
     );
 
   // console.log("HOST:", req.headers.host);
@@ -216,7 +216,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // chequeamos si el token decodificado corresponde a un usuario existente
   const user = await User.findById(decodedToken.id);
-  if (!user) return next(new AppError("El usuario no existe mas..", 404));
+  if (!user) return next(new AppError("El usuario no existe mas...", 404));
 
   // podemos realizar mas checks que nos interesen
   req.user = user;
@@ -241,7 +241,7 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
   const decodedToken = await promisify(jwt.verify)(token, JWT_SECRET);
 
   if (!(decodedToken.id == req.body.token))
-    return next(new AppError("El codido de verificacion es incorrecto", 401));
+    return next(new AppError("El código que ingresaste es incorrecto.", 401));
 
   // almacenamos el codigo en el usuario y lo creamos
   req.cookies.userAuthData.code = req.body.token + "";

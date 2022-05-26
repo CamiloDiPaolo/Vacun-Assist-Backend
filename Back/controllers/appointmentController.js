@@ -120,11 +120,11 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
   if (!(await isVaccinated(dni, "Covid2")) && vaccine == "Covid3")
     return "No puede darse la 3ra dosis sin antes darse la segunda";
   if (age < 18 && vaccine.startsWith("Covid"))
-    return "No puede darse la vacuan contra el Covid si es menor de age";
+    return "Debido a tu edad no podes vacunarte con esta vacuna😅";
   if (age > 60 && vaccine == "FiebreAmarilla")
-    return "Es demasiado mayor para aplicarse esa vacuna";
+    return "Debido a tu edad no podes vacunarte con esta vacuna😅";
   else if (vaccine == "FiebreAmarilla")
-    return "El turno para la fiebre amarilla debe sacarse de forma local";
+    return "Los turnos para esta vacuna se sacan de forma manual. Acércate a tu vacunatorio más cercano y solicitalo!";
   return "";
 };
 
@@ -155,7 +155,7 @@ const getAppointmentDate = (birthday, vaccine, isRisk) => {
     return currentDate.toDateString();
   } else if (vaccine.startsWith("Covid")) {
     throw new AppError(
-      "Si no sos de riesgo tenes que sacar el turno local...",
+      "Los turnos para esta vacuna se sacan de forma manual. Acércate a tu vacunatorio más cercano y solicitalo!",
       403
     );
   }
