@@ -237,8 +237,8 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
     newDate.setMilliseconds(0);
 
     // si la vacuna es gripe el turno se da a un año, si es covid a 3 meses
-    newDate.setUTCFullYear(newDate.getFullYear() + 1);
     if (vaccine == "Covid") newDate.setUTCMonth(newDate.getMonth() + 3);
+    else newDate.setUTCFullYear(newDate.getFullYear() + 1);
 
     // eliminamos los campos para que crea mongoose para no tener problemas al crear uno nuevo
     const newAppointment = {
