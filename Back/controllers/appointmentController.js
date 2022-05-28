@@ -35,10 +35,11 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
   // fecha.setDate(fecha.getDate() + 1);
   // req.body.vaccinationDate = fecha;
 
-  req.body.vaccinationDate = getAppointmentDate(
+  req.body.vaccinationDate = await getAppointmentDate(
     req.user.birthday,
     req.body.vaccine,
-    req.user.isRisk
+    req.user.isRisk,
+    req.user.dni
   );
 
   const newAppointment = await Appointment.create(req.body);
@@ -134,6 +135,36 @@ const hasActiveAppointment = async (dni, vac) => {
 
   return allAppointment.length;
 };
+const lastAppointmentMonth = async (dni, vac) => {
+  const allAppointment = await Appointment.find({
+    state: "Finalizado",
+    vaccine: vac,
+    patientDni: dni,
+  });
+
+  if (allAppointment.length === 0) return 0;
+
+  // Math.min.apply(Math, nums);
+  const lastDateTime = Math.max.apply(
+    Math,
+    allAppointment.map((appointment) =>
+      new Date(appointment.vaccinationDate).getTime()
+    )
+  );
+  const lastAppointment = allAppointment.find(
+    (appointment) =>
+      new Date(appointment.vaccinationDate).getTime() === lastDateTime
+  );
+
+  // comprobamos la cantidad de meses pedazo NOTAS
+  const currentDate = new Date();
+  const lastAppointmentDate = new Date(lastAppointment.vaccinationDate);
+
+  let monthsDiff = (currentDate.getYear() - lastAppointmentDate.getYear()) * 12;
+  monthsDiff += currentDate.getMonth();
+  monthsDiff -= lastAppointmentDate.getMonth();
+  return monthsDiff;
+};
 const appointmentValidation = async (dni, vaccine, birthday) => {
   const birthdayDate = new Date(birthday);
   const currentDate = new Date();
@@ -149,23 +180,34 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
 
   // si ya tiene un turno o se vacuno contra la vacuna
   if (await hasActiveAppointment(dni, vaccine))
-    return "Usted ya tiene un turno pendiente contra la misma";
-  // si se va a dar las vacunas de covid corroboramos que sea en orden
-  // if (!(await isVaccinated(dni, "Covid1")) && vaccine == "Covid2")
-  //   return "No puede darse la 2da dosis sin antes darse la primera";
-  // if (!(await isVaccinated(dni, "Covid2")) && vaccine == "Covid3")
-  //   return "No puede darse la 3ra dosis sin antes darse la segunda";
+    return "Ya tenes un turno contra esta vacuna 😅";
 
+  // comprobamos los temas de la edad
   if (age < 18 && vaccine == "Covid")
-    return "Debido a tu edad no podes vacunarte con esta vacuna😅";
+    return "Por tu edad no podes vacunarte con esta vacuna😅";
   if (age > 60 && vaccine == "FiebreAmarilla")
-    return "Debido a tu edad no podes vacunarte con esta vacuna😅";
+    return "Por tu edad no podes vacunarte con esta vacuna😅";
   else if (vaccine == "FiebreAmarilla")
     return "Los turnos para esta vacuna se sacan de forma manual. Acércate a tu vacunatorio más cercano y solicitalo!";
+
+  // comprobamos la ultima dosis de cada vacuna
+  if (
+    vaccine == "Covid" &&
+    (await lastAppointmentMonth(dni, vaccine)) < 3 &&
+    (await hasAppointment(dni, vaccine)) >= 1
+  )
+    return "Tenes que esperar a que pasen mas de 3 meses de la ultima dosis para sacar turno 🤔";
+  if (
+    vaccine == "Gripe" &&
+    (await lastAppointmentMonth(dni, vaccine)) < 12 &&
+    (await hasAppointment(dni, vaccine)) >= 1
+  )
+    return "Tenes que esperar a que pasen mas de 12 meses de la ultima dosis para sacar turno 🤔";
+
   return "";
 };
 
-const getAppointmentDate = (birthday, vaccine, isRisk) => {
+const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
   const birthdayDate = new Date(birthday);
   const currentDate = new Date();
 
@@ -178,27 +220,43 @@ const getAppointmentDate = (birthday, vaccine, isRisk) => {
   age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
 
   // condiciones para la Gripe
-  if ((age < 18 || age < 60) && vaccine === "Gripe") {
-    currentDate.setUTCMonth(currentDate.getMonth() + 6);
-    return currentDate;
-  } else if (vaccine === "Gripe") {
+  if (vaccine === "Gripe") {
+    if ((age < 18 || age < 60) && vaccine === "Gripe") {
+      currentDate.setUTCMonth(currentDate.getMonth() + 6);
+      return currentDate;
+    }
+
     currentDate.setUTCMonth(currentDate.getMonth() + 3);
     return currentDate;
   }
 
   // condiciones para el Covid
-  if (age > 60 && vaccine == "Covid") {
-    currentDate.setUTCDate(currentDate.getDate() + 7);
-    return currentDate;
-  } else if (isRisk && vaccine == "Covid") {
-    currentDate.setUTCDate(currentDate.getDate() + 7);
-    return currentDate;
-  } else if (vaccine == "Covid") {
+
+  if (vaccine == "Covid") {
+    // console.log(lastAppointmentMonth(dni, vaccine));
+    if (age > 60) {
+      currentDate.setUTCDate(currentDate.getDate() + 7);
+      return currentDate;
+    }
+    if (age > 18 && age < 60 && isRisk) {
+      currentDate.setUTCDate(currentDate.getDate() + 7);
+      return currentDate;
+    }
+    if (
+      age > 18 &&
+      age < 60 &&
+      !isRisk &&
+      (await lastAppointmentMonth(dni, vaccine)) >= 3
+    ) {
+      currentDate.setUTCDate(currentDate.getDate() + 7);
+      return currentDate;
+    }
     throw new AppError(
       "Los turnos para esta vacuna se sacan de forma manual. Acércate a tu vacunatorio más cercano y solicitalo!",
       403
     );
   }
+
   throw new AppError("Algo salio mal a asignar el turno....", 500);
 };
 

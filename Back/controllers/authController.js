@@ -85,7 +85,6 @@ const createSendTokenMail = (val, res, mail) => {
  */
 exports.signup = catchAsync(async (req, res, next) => {
   // comprobamso que se ingresen todos los datos
-  console.log(req.body);
   if (
     !req.body.dni ||
     !req.body.email ||
@@ -164,15 +163,6 @@ exports.signupVacc = catchAsync(async (req, res, next) => {
  * @param {function} next es la funcion que utilizamos para seguir con el flujo de middlewares
  */
 exports.login = catchAsync(async (req, res, next) => {
-  // console.log("Datos del usuario que quiere iniciar sesion: ", req.body);
-  // console.log("cookies: ", req.cookies);
-  // console.log(
-  //   "HEADER LOGIN-----------",
-  //   res.getHeader("Access-Control-Allow-Credentials")
-  // );
-
-  // console.log("COOKIES DE LA REQ ", req.cookies.jwt);
-
   const { dni, password, code } = { ...req.body };
 
   // chequeamos si ingresoe l dni y la contraseña
@@ -181,13 +171,10 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // chequeamos i existe un usuario para esos datos
   const user = await User.findOne({ dni, password, code });
-  console.log(user);
   if (!user)
     return next(
       new AppError("Alguno de los datos ingresados es incorrecto.", 404)
     );
-
-  // console.log("HOST:", req.headers.host);
 
   // esto va solo en modo dev
   const mismoSitio = req.headers.host === "127.0.0.1:8082";
@@ -276,7 +263,6 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
  */
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
-    console.log(roles, req.user.rol);
     if (!roles.includes(req.user.rol))
       return next(
         new AppError(`El rol:  ${req.user.rol}  no esta en la lista`, 401)

@@ -133,10 +133,7 @@ const validRenaper = async (dni, tramit, gender) => {
   // probamos validar los datos del usuario
   try {
     const x = await axios(options);
-    console.log(x);
-    console.log("RES VALID");
   } catch (err) {
-    console.log(err);
     if (
       err.response.status == 403 ||
       err.response.status == 429 ||
@@ -163,7 +160,6 @@ const dataFormat = (usrEsp, usrEng) => {
     usrEsp.domicilio = usrEsp.domicilio.find(
       (dom) => dom.tipoDomicilio === "LEGAL/REAL"
     );
-    console.log("El domicilio es un arreglo");
   }
 
   usrEng.home = {
