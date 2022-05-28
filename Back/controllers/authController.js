@@ -85,6 +85,7 @@ const createSendTokenMail = (val, res, mail) => {
  */
 exports.signup = catchAsync(async (req, res, next) => {
   // comprobamso que se ingresen todos los datos
+  console.log(req.body);
   if (
     !req.body.dni ||
     !req.body.email ||
@@ -219,7 +220,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // conseguimos el token y chequeamos si existe
   if (req.cookies && req.cookies.jwt) token = req.cookies.jwt;
-  if (!token) return next(new AppError("No estas logeado/registrado..", 401));
+  if (!token) return next(new AppError("No estas logeado/registrado.", 401));
 
   // verificamos si el token es correcto
   // para eso convertimos el metodo en una promesa, ya que estamos en una funcion async
@@ -227,7 +228,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // chequeamos si el token decodificado corresponde a un usuario existente
   const user = await User.findById(decodedToken.id);
-  if (!user) return next(new AppError("El usuario no existe mas...", 404));
+  if (!user) return next(new AppError("El usuario no existe mas.", 404));
 
   // podemos realizar mas checks que nos interesen
   req.user = user;
@@ -245,7 +246,7 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
   // conseguimos el token y chequeamos si existe
   if (req.cookies && req.cookies.jwtMail) token = req.cookies.jwtMail;
   if (!token)
-    return next(new AppError("no enviaste el codigo de verificacion..", 401));
+    return next(new AppError("No enviaste el codigo de verificación.", 401));
 
   // verificamos si el token es correcto
   // para eso convertimos el metodo en una promesa, ya que estamos en una funcion async

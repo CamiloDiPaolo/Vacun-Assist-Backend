@@ -88,7 +88,7 @@ exports.userRenaper = async (usrData) => {
       err.response.status == 429 ||
       err.response.status == 502
     )
-      throw new AppError("Error reintentable del renaper", 403);
+      throw new AppError("Error de conexión con el RENAPER😢", 403);
     throw new AppError(
       `No se pudo encontrar datos correspondientes a ese dni`,
       404
@@ -136,12 +136,13 @@ const validRenaper = async (dni, tramit, gender) => {
     console.log(x);
     console.log("RES VALID");
   } catch (err) {
+    console.log(err);
     if (
       err.response.status == 403 ||
       err.response.status == 429 ||
       err.response.status == 502
     )
-      throw new AppError("Error reintentable del renaper", 403);
+      throw new AppError("Error de conexión con el RENAPER😢", 403);
     throw new AppError(`No se pudieron validar los datos`, 404);
   }
 };
