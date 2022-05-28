@@ -84,6 +84,16 @@ const createSendTokenMail = (val, res, mail) => {
  * @param {function} next es la funcion que utilizamos para seguir con el flujo de middlewares
  */
 exports.signup = catchAsync(async (req, res, next) => {
+  // comprobamso que se ingresen todos los datos
+  if (
+    !req.body.dni ||
+    !req.body.email ||
+    !req.body.password ||
+    !req.body.tramit ||
+    !req.body.gender
+  )
+    return next(new AppError("Por favor ingresa todos los datos", 400));
+
   // verificamos que no exista alguien conese dni
   const user = await User.find({ dni: req.body.dni });
   if (user.length)
@@ -106,6 +116,15 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendTokenMail(randomCode(), res, req.body.email);
 });
 exports.signupVacc = catchAsync(async (req, res, next) => {
+  // comprobamso que se ingresen todos los datos
+  if (
+    !req.body.dni ||
+    !req.body.email ||
+    !req.body.password ||
+    !req.body.tramit ||
+    !req.body.gender
+  )
+    return next(new AppError("Por favor ingresa todos los datos", 400));
   // verificamos que no exista alguien conese dni
   const user = await User.find({ dni: req.body.dni });
   if (user.length)

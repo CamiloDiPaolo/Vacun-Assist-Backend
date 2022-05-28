@@ -59,6 +59,10 @@ exports.updateHealthData = catchAsync(async (req, res, next) => {
  * @returns un objeto de usuario con todos los datos del renaper formateados, o tira un error si algo sale mal con la API
  */
 exports.userRenaper = async (usrData) => {
+  // validamos los datos de la persona
+  await validRenaper(usrData.dni, usrData.tramit, usrData.gender);
+
+  // obtenemos los datos
   // objeto de configuracion axios
   const options = {
     url: "/person/lookup",
@@ -79,14 +83,17 @@ exports.userRenaper = async (usrData) => {
   try {
     resRenaper = await axios(options);
   } catch (err) {
-    if (err.response.status == 403)
+    if (
+      err.response.status == 403 ||
+      err.response.status == 429 ||
+      err.response.status == 502
+    )
       throw new AppError("Error reintentable del renaper", 403);
     throw new AppError(
-      `Ocurrio un error con la API de Renaper. El error fue: ${err}`,
+      `No se pudo encontrar datos correspondientes a ese dni`,
       404
     );
   }
-  console.log(resRenaper);
   const userEspañol = resRenaper.data.data
     ? resRenaper.data.data
     : resRenaper.data;
@@ -106,22 +113,36 @@ exports.userRenaper = async (usrData) => {
 /**
  * Esta funcion retorna si un dni es valido para la API de renaper
  * @param {String} dni dni de la persona a validar
+ * @param {String} tramit nro de tramite de la persona a validar (en este caso recibe el CUIT)
+ * @param {String} gender genro de la persona a validar
  */
-exports.validRenaper = async (dni) => {
-  try {
-    const options = {
-      url: "/",
-      method: "get",
-      baseURL: "http://localhost:8000/renaper",
-      headers: { "X-Requested-With": "XMLHttpRequest" },
-      data: { dni },
-      timeout: 5000,
-    };
-    const resRenaper = await axios(options);
+const validRenaper = async (dni, tramit, gender) => {
+  const options = {
+    url: "/person/validate",
+    method: "post",
+    baseURL: URL_RENAPER,
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+      "X-Api-Key": KEY_RENAPER,
+      "Content-Type": "application/json",
+    },
+    data: { dni: dni, tramite: tramit, sexo: gender },
+    timeout: 5000,
+  };
 
-    return resRenaper.data.data;
+  // probamos validar los datos del usuario
+  try {
+    const x = await axios(options);
+    console.log(x);
+    console.log("RES VALID");
   } catch (err) {
-    return new AppError("Hubo un problema con la API del renaper", 404);
+    if (
+      err.response.status == 403 ||
+      err.response.status == 429 ||
+      err.response.status == 502
+    )
+      throw new AppError("Error reintentable del renaper", 403);
+    throw new AppError(`No se pudieron validar los datos`, 404);
   }
 };
 /**
