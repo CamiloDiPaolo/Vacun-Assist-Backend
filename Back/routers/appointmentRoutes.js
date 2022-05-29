@@ -13,13 +13,13 @@ appointmentRouter
     appointmentController.createAppointmentVirtual
   );
 
-appointmentRouter
-  .route("/local")
-  .post(
-    authController.protect,
-    authController.restrictTo("vacc"),
-    appointmentController.createAppointmentLocal
-  );
+// appointmentRouter
+//   .route("/local")
+//   .post(
+//     authController.protect,
+//     authController.restrictTo("vacc"),
+//     appointmentController.createAppointmentLocal
+//   );
 
 // validar turno
 appointmentRouter

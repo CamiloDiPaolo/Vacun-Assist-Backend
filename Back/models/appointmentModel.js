@@ -4,7 +4,7 @@ const appointmentSchema = mongoose.Schema({
   state: {
     type: String,
     default: "Activo",
-    enum: ["Activo", "Finalizado", "Cancelado"],
+    enum: ["Activo", "Finalizado", "Cancelado", "Pendiente"],
   },
   patientDni: {
     type: Number,

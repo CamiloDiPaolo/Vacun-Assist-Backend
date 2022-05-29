@@ -18,6 +18,13 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
       ),
       400
     );
+  if (!req.user.updatedHealthData)
+    return next(
+      new AppError(
+        "Tenes que completar tus datos de salud para poder sacar un turno"
+      ),
+      403
+    );
 
   // si el usuario ya esta vacunado contra esa vacuna no se permite sacar el turno
   const err = await appointmentValidation(
@@ -25,23 +32,26 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
     req.body.vaccine,
     req.user.birthday
   );
-  if (err) return next(new AppError(err, 500));
+  if (err && err != "Pendiente") return next(new AppError(err, 500));
 
-  // si esta todo correcto se sigue
-  req.body.patientDni = req.user.dni;
-
-  // POR AHORA HARDCODEAMOS LA FECHA DEL TURNO; DESPUES TIENE QUE HACERSE BIEN
-  // let fecha = new Date();
-  // fecha.setDate(fecha.getDate() + 1);
-  // req.body.vaccinationDate = fecha;
-
-  req.body.vaccinationDate = await getAppointmentDate(
+  let vaccinationDate = await getAppointmentDate(
     req.user.birthday,
     req.body.vaccine,
     req.user.isRisk,
     req.user.dni
   );
 
+  // si no cumple con los requisitos el turno queda a la espera para ser aprobado
+  req.body.state =
+    err == "Pendiente" || vaccinationDate == "Pendiente"
+      ? "Pendiente"
+      : "Activo";
+
+  if (vaccinationDate != "Pendiente")
+    req.body.vaccinationDate = vaccinationDate;
+
+  // si esta todo correcto se sigue
+  req.body.patientDni = req.user.dni;
   const newAppointment = await Appointment.create(req.body);
 
   res.status(201).json({
@@ -50,42 +60,42 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createAppointmentLocal = catchAsync(async (req, res, next) => {
-  // chequeo si existe en el renaper
-  if (!(await userController.validRenaper(req.body.dni))) {
-    return next(
-      new AppError("El usuario no es valido para la API del renaper"),
-      403
-    );
-  }
-  // corroboro que pueda darse el turno a la vacuna
-  const err = await appointmentValidation(
-    req.body.dni,
-    req.body.vaccine,
-    req.user.birthday
-  );
-  if (err) return next(new new AppError(err)(), 401);
+// exports.createAppointmentLocal = catchAsync(async (req, res, next) => {
+//   // chequeo si existe en el renaper
+//   if (!(await userController.validRenaper(req.body.dni))) {
+//     return next(
+//       new AppError("El usuario no es valido para la API del renaper"),
+//       403
+//     );
+//   }
+//   // corroboro que pueda darse el turno a la vacuna
+//   const err = await appointmentValidation(
+//     req.body.dni,
+//     req.body.vaccine,
+//     req.user.birthday
+//   );
+//   if (err) return next(new new AppError(err)(), 401);
 
-  // comprobamos que se ingrese una fecha, ya que el vacunador la ingresa a mano
-  if (!req.body.vaccinationDate)
-    return next(
-      new AppError(
-        "Debe ingresar una fecha para sacar el turno de forma local",
-        400
-      )
-    );
+//   // comprobamos que se ingrese una fecha, ya que el vacunador la ingresa a mano
+//   if (!req.body.vaccinationDate)
+//     return next(
+//       new AppError(
+//         "Debe ingresar una fecha para sacar el turno de forma local",
+//         400
+//       )
+//     );
 
-  //asignamos el centro de vacunacion del vacunador que esta logeado
-  req.body.vaccinationCenter = req.user.vaccinationCenter;
-  req.body.patientDni = req.body.dni;
+//   //asignamos el centro de vacunacion del vacunador que esta logeado
+//   req.body.vaccinationCenter = req.user.vaccinationCenter;
+//   req.body.patientDni = req.body.dni;
 
-  const newAppointment = await Appointment.create(req.body);
+//   const newAppointment = await Appointment.create(req.body);
 
-  res.status(200).json({
-    status: "success",
-    data: { newAppointment },
-  });
-});
+//   res.status(200).json({
+//     status: "success",
+//     data: { newAppointment },
+//   });
+// });
 
 exports.getAppointments = catchAsync(async (req, res, next) => {
   const queryOptions = {};
@@ -128,7 +138,7 @@ const hasAppointment = async (dni, vac) => {
 };
 const hasActiveAppointment = async (dni, vac) => {
   const allAppointment = await Appointment.find({
-    state: "Activo",
+    $or: [{ state: "Pendiente" }, { state: "Activo" }],
     vaccine: vac,
     patientDni: dni,
   });
@@ -180,15 +190,14 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
 
   // si ya tiene un turno o se vacuno contra la vacuna
   if (await hasActiveAppointment(dni, vaccine))
-    return "Ya tenes un turno contra esta vacuna 😅";
+    return "Ya tenes un turno contra esta vacuna o tenes un turno en espera 😅";
 
   // comprobamos los temas de la edad
   if (age < 18 && vaccine == "Covid")
     return "Por tu edad no podes vacunarte con esta vacuna😅";
   if (age > 60 && vaccine == "FiebreAmarilla")
     return "Por tu edad no podes vacunarte con esta vacuna😅";
-  else if (vaccine == "FiebreAmarilla")
-    return "Los turnos para esta vacuna se sacan de forma manual. Acércate a tu vacunatorio más cercano y solicitalo!";
+  else if (vaccine == "FiebreAmarilla") return "Pendiente";
 
   // comprobamos la ultima dosis de cada vacuna
   if (
@@ -251,10 +260,7 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
       currentDate.setUTCDate(currentDate.getDate() + 7);
       return currentDate;
     }
-    throw new AppError(
-      "Los turnos para esta vacuna se sacan de forma manual. Acércate a tu vacunatorio más cercano y solicitalo!",
-      403
-    );
+    return "Pendiente";
   }
 
   throw new AppError("Algo salio mal a asignar el turno....", 500);
