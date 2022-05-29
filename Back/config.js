@@ -2,6 +2,8 @@ exports.JWT_EXPIRES_IN = "10y";
 exports.JWT_SECRET = "my-ultra-secreto-y-ultra-largo-jwt";
 exports.JWT_COOKIE_EXPIRES_IN = 900;
 
+exports.COOKIE_EXPIRES = 300 * 60 * 1000; // 300 minutos
+
 exports.PORT = 8082;
 exports.ALLOWED_ACCES_URL = ["http://localhost:3000", "http://localhost:8082"];
 

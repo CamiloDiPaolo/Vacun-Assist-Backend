@@ -11,6 +11,7 @@ const {
   JWT_EXPIRES_IN,
   JWT_SECRET,
   JWT_COOKIE_EXPIRES_IN,
+  COOKIE_EXPIRES,
 } = require("../config");
 ////////////////
 
@@ -31,7 +32,7 @@ const signupToken = (id) => {
 const createSendToken = (usr, res, mismoSitio = false) => {
   const token = signupToken(usr._id);
   const cookieOptions = {
-    expires: new Date(Date.now() + 10 * 60 * 1000),
+    expires: new Date(Date.now() + COOKIE_EXPIRES),
     secure: false, // este campo en PRODUCCION deberia ser verdadero
     httpOnly: true,
   };
@@ -58,7 +59,7 @@ const createSendToken = (usr, res, mismoSitio = false) => {
 const createSendTokenMail = (val, res, mail) => {
   const token = signupToken(val);
   const cookieOptions = {
-    expires: new Date(Date.now() + 10 * 60 * 1000),
+    expires: new Date(Date.now() + COOKIE_EXPIRES),
     secure: false, // este campo en PRODUCCION deberia ser verdadero
     httpOnly: true,
   };
@@ -106,7 +107,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   // guardamos los datos del usuario que quiere registrarse en una cookie
   const cookieOptions = {
-    expires: new Date(Date.now() + 10 * 60 * 1000),
+    expires: new Date(Date.now() + COOKIE_EXPIRES),
     secure: false, // este campo en PRODUCCION deberia ser verdadero
     httpOnly: true,
   };

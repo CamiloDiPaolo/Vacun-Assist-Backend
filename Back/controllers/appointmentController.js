@@ -32,8 +32,9 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
     req.body.vaccine,
     req.user.birthday
   );
-  if (err && err != "Pendiente") return next(new AppError(err, 500));
+  if (err) return next(new AppError(err, 500));
 
+  // obtenes la fecha de vacunacion si cumple las condiciones
   let vaccinationDate = await getAppointmentDate(
     req.user.birthday,
     req.body.vaccine,
@@ -41,14 +42,9 @@ exports.createAppointmentVirtual = catchAsync(async (req, res, next) => {
     req.user.dni
   );
 
-  // si no cumple con los requisitos el turno queda a la espera para ser aprobado
-  req.body.state =
-    err == "Pendiente" || vaccinationDate == "Pendiente"
-      ? "Pendiente"
-      : "Activo";
-
-  if (vaccinationDate != "Pendiente")
-    req.body.vaccinationDate = vaccinationDate;
+  // si no se le asigna fecha entonces el turno esta pendiente a la espera
+  req.body.state = !vaccinationDate ? "Pendiente" : "Activo";
+  if (vaccinationDate) req.body.vaccinationDate = vaccinationDate;
 
   // si esta todo correcto se sigue
   req.body.patientDni = req.user.dni;
@@ -197,7 +193,6 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
     return "Por tu edad no podes vacunarte con esta vacuna😅";
   if (age > 60 && vaccine == "FiebreAmarilla")
     return "Por tu edad no podes vacunarte con esta vacuna😅";
-  else if (vaccine == "FiebreAmarilla") return "Pendiente";
 
   // comprobamos la ultima dosis de cada vacuna
   if (
@@ -240,7 +235,6 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
   }
 
   // condiciones para el Covid
-
   if (vaccine == "Covid") {
     // console.log(lastAppointmentMonth(dni, vaccine));
     if (age > 60) {
@@ -260,9 +254,13 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
       currentDate.setUTCDate(currentDate.getDate() + 7);
       return currentDate;
     }
-    return "Pendiente";
+    return null;
   }
 
+  // condiciones para la Fiebre Amarilla
+  if (vaccine == "FiebreAmarilla") return null;
+
+  // si no se asgian nada algo se rompio feo
   throw new AppError("Algo salio mal a asignar el turno....", 500);
 };
 
