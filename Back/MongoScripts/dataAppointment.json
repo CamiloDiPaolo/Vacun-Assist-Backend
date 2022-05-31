@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "6293870928b3ec6eae31b0ad",
+    "state": "Activo",
+    "patientDni": 43521062,
+    "vaccine": "Covid",
+    "vaccinationDate": "2022-06-05T03:00:00.000Z",
+    "issueDate": "2022-05-29T14:45:20.963Z",
+    "vaccinationCenter": "Hospital 9 de Julio",
+    "__v": 0
+  }
+]

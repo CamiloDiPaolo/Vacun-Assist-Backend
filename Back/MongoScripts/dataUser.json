@@ -1,0 +1,23 @@
+[
+  {
+    "home": {
+      "street": "7 e/ 74 y 75",
+      "postalCode": 1900,
+      "state": "buenos aires",
+      "number": 2094
+    },
+    "_id": "62924458d2049bc895d2147d",
+    "dni": "43521062",
+    "password": "12345678",
+    "code": "1234",
+    "email": "camilodipaolo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": true,
+    "updatedHealthData": true,
+    "fullName": " di paolo camilo",
+    "cuil": "20435210628",
+    "birthday": "2001-06-26T15:00:00.000Z",
+    "__v": 0
+  }
+]
