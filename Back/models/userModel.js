@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: [true, "Un usuario debe tener un nombre"],
-    lowercase: true,
+    // lowercase: true,
   },
   cuil: {
     type: String,
