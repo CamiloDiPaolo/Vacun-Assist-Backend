@@ -111,7 +111,7 @@ const lastAppointmentMonth = async (dni, vac) => {
     patientDni: dni,
   });
 
-  if (allAppointment.length === 0) return 0;
+  if (allAppointment.length === 0) return null;
 
   // Math.min.apply(Math, nums);
   const lastDateTime = Math.max.apply(
@@ -207,7 +207,7 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
       return currentDate;
     } else if (
       (await lastAppointmentMonth(dni, vaccine)) < 12 &&
-      (await lastAppointmentMonth(dni, vaccine)) != 0
+      (await lastAppointmentMonth(dni, vaccine)) != null
     ) {
       const diffTime =
         currentDate.getTime() -
@@ -234,7 +234,7 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
       currentDate.setUTCMonth(currentDate.getMonth() + 6);
       return currentDate;
     }
-    // si es menor de 18 años
+    // si es mayor de 60 años
     currentDate.setUTCMonth(currentDate.getMonth() + 3);
     return currentDate;
   }
@@ -242,7 +242,7 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
   // condiciones para el Covid
   if (vaccine == "Covid") {
     if (age > 18) {
-      if (isRisk) {
+      if (isRisk && (await lastAppointmentMonth(dni, vaccine)) == null) {
         currentDate.setUTCDate(currentDate.getDate() + 7);
         return currentDate;
       } else if ((await lastAppointmentMonth(dni, vaccine)) >= 3) {
@@ -251,7 +251,7 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
         return currentDate;
       } else if (
         (await lastAppointmentMonth(dni, vaccine)) < 3 &&
-        (await lastAppointmentMonth(dni, vaccine)) != 0
+        (await lastAppointmentMonth(dni, vaccine)) != null
       ) {
         // si el usuario no es de riesgo y tiene una vacuna de covid hace menos de 3 meses se saca a 3 meses de la fecha del ultimo turno
         const diffTime =
