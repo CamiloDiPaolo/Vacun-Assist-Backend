@@ -209,9 +209,21 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
       (await lastAppointmentMonth(dni, vaccine)) < 12 &&
       (await lastAppointmentMonth(dni, vaccine)) != null
     ) {
-      const diffTime =
-        currentDate.getTime() -
-        (await lastAppointment(dni, vaccine)).vaccinationDate.getTime();
+      const nextDate = new Date();
+      nextDate.setHours(0);
+      nextDate.setMinutes(0);
+      nextDate.setSeconds(0);
+      nextDate.setMilliseconds(0);
+      nextDate.setFullYear(
+        (await lastAppointment(dni, vaccine)).vaccinationDate.getFullYear()
+      );
+      nextDate.setUTCMonth(
+        (await lastAppointment(dni, vaccine)).vaccinationDate.getMonth() + 2
+      );
+      nextDate.setUTCDate(
+        (await lastAppointment(dni, vaccine)).vaccinationDate.getDate()
+      );
+      const diffTime = nextDate.getTime() - currentDate.getTime();
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
       // si la diferencia de dias es menor o igual a 7 dias se saca el turno a una semana
       if (diffDays <= 7) {
@@ -254,20 +266,22 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
         (await lastAppointmentMonth(dni, vaccine)) != null
       ) {
         const nextDate = new Date();
+        nextDate.setHours(0);
+        nextDate.setMinutes(0);
+        nextDate.setSeconds(0);
+        nextDate.setMilliseconds(0);
         nextDate.setFullYear(
           (await lastAppointment(dni, vaccine)).vaccinationDate.getFullYear()
         );
-        next.setUTCMonth(
-          (await lastAppointment(dni, vaccine)).vaccinationDate.getMonth()
+        nextDate.setUTCMonth(
+          (await lastAppointment(dni, vaccine)).vaccinationDate.getMonth() + 2
         );
-        next.setUTCDate(
+        nextDate.setUTCDate(
           (await lastAppointment(dni, vaccine)).vaccinationDate.getDate()
         );
 
         // si el usuario no es de riesgo y tiene una vacuna de covid hace menos de 3 meses se saca a 3 meses de la fecha del ultimo turno
-        const diffTime =
-          nextDate.getTime() -
-          (await lastAppointment(dni, vaccine)).vaccinationDate.getTime();
+        const diffTime = nextDate.getTime() - currentDate.getTime();
         const diffDays = diffTime / (1000 * 60 * 60 * 24);
         // si la diferencia de dias es menor o igual a 7 dias se saca el turno a una semana
         if (diffDays <= 7) {
@@ -276,7 +290,7 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
         }
         // si la diferencia de dias es mayor a 7 se saca a 3 meses d ela fecha del ultimo turno
         currentDate.setUTCMonth(
-          (await lastAppointment(dni, vaccine)).vaccinationDate.getMonth() + 3
+          (await lastAppointment(dni, vaccine)).vaccinationDate.getMonth() + 2
         );
         currentDate.setUTCDate(
           (await lastAppointment(dni, vaccine)).vaccinationDate.getDate()
