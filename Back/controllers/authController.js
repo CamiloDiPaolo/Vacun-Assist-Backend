@@ -12,6 +12,7 @@ const {
   JWT_SECRET,
   JWT_COOKIE_EXPIRES_IN,
   COOKIE_EXPIRES,
+  TOKEN_EXPIRES,
 } = require("../config");
 ////////////////
 
@@ -59,7 +60,7 @@ const createSendToken = (usr, res, mismoSitio = false) => {
 const createSendTokenMail = (val, res, mail) => {
   const token = signupToken(val);
   const cookieOptions = {
-    expires: new Date(Date.now() + COOKIE_EXPIRES),
+    expires: new Date(Date.now() + TOKEN_EXPIRES),
     secure: false, // este campo en PRODUCCION deberia ser verdadero
     httpOnly: true,
   };
@@ -234,7 +235,12 @@ exports.confirmAcount = catchAsync(async (req, res, next) => {
   // conseguimos el token y chequeamos si existe
   if (req.cookies && req.cookies.jwtMail) token = req.cookies.jwtMail;
   if (!token)
-    return next(new AppError("No enviaste el codigo de verificación.", 401));
+    return next(
+      new AppError(
+        "El código que ingresaste se ha vencido. Vuelva a la pantalla de registro para recibir uno nuevo.",
+        401
+      )
+    );
 
   // verificamos si el token es correcto
   // para eso convertimos el metodo en una promesa, ya que estamos en una funcion async
