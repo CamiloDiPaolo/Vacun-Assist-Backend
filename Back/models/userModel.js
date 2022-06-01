@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     // el vacunatorio solo cuenta para los usuarios con rol de Vacunador(vacc)
     // agregar un validador: si es rol vacc debe tener un vacunatorio asignado si o si
     type: String,
-    enum: ["1", "2", "3"],
+    enum: ["Hospital 9 de Julio", "Corralón municipal", "Polideportivo"],
   },
   // healthData: {
   //   isRisk: { type: Boolean, default: false },
