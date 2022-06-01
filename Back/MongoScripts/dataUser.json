@@ -1,23 +1,256 @@
 [
   {
     "home": {
-      "street": "7 e/ 74 y 75",
-      "postalCode": 1900,
-      "state": "buenos aires",
-      "number": 2094
+      "street": "florentino ameghino",
+      "postalCode": 2400,
+      "state": "cordoba",
+      "number": 458
     },
-    "_id": "62924458d2049bc895d2147d",
-    "dni": "43521062",
+    "_id": "629755b41047b3010c4ef3b6",
+    "dni": "13521062",
     "password": "12345678",
     "code": "1234",
-    "email": "camilodipaolo@gmail.com",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": false,
+    "updatedHealthData": false,
+    "fullName": " SILVA GUSTAVO CARLOS",
+    "cuil": "20135210626",
+    "birthday": "1959-10-23T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "rio negro",
+      "postalCode": 8000,
+      "state": "buenos aires",
+      "number": 1680
+    },
+    "_id": "629755e61047b3010c4ef3b9",
+    "dni": "53521062",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": false,
+    "updatedHealthData": false,
+    "fullName": " DOMINGUEZ CIRO LEON ",
+    "cuil": "20535210625",
+    "birthday": "2013-07-10T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "6 bis 616 y 617",
+      "postalCode": 1900,
+      "state": "buenos aires",
+      "number": 4168
+    },
+    "_id": "629756271047b3010c4ef3bc",
+    "dni": "43521061",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": false,
+    "updatedHealthData": true,
+    "fullName": " LIPPO BRISA ORIANA",
+    "cuil": "27435210614",
+    "birthday": "2001-06-22T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "160/69y70",
+      "postalCode": 6007,
+      "state": "buenos aires",
+      "number": 1843
+    },
+    "_id": "6297565e1047b3010c4ef3bf",
+    "dni": "43521060",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
     "emailsPlus": [],
     "rol": "user",
     "isRisk": true,
     "updatedHealthData": true,
-    "fullName": " di paolo camilo",
-    "cuil": "20435210628",
-    "birthday": "2001-06-26T15:00:00.000Z",
+    "fullName": " ROJAS SEBASTIAN NICOLAS",
+    "cuil": "20435210601",
+    "birthday": "2001-07-04T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "calle 61",
+      "postalCode": 1900,
+      "state": "buenos aires",
+      "number": 2815
+    },
+    "_id": "629756ae1047b3010c4ef3c2",
+    "dni": "43521063",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": false,
+    "updatedHealthData": true,
+    "fullName": " TERMINIELLO MICAELA ROCIO",
+    "cuil": "27435210630",
+    "birthday": "2001-07-02T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "62",
+      "postalCode": 1900,
+      "state": "buenos aires",
+      "number": 1584
+    },
+    "_id": "629757451047b3010c4ef3d4",
+    "dni": "43521064",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": true,
+    "updatedHealthData": true,
+    "fullName": " BLANCO MARIA VICTORIA",
+    "cuil": "27435210649",
+    "birthday": "2001-06-19T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "calle 29 y 74",
+      "postalCode": 0,
+      "state": "buenos aires",
+      "number": 0
+    },
+    "_id": "629757cb1047b3010c4ef3e6",
+    "dni": "43521065",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": true,
+    "updatedHealthData": true,
+    "fullName": " CANETE FACUNDO ARIEL",
+    "cuil": "20435210652",
+    "birthday": "2001-02-27T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "65 e/ 135 y 136",
+      "postalCode": 1900,
+      "state": "buenos aires",
+      "number": 2018
+    },
+    "_id": "6297586d1047b3010c4ef3f8",
+    "dni": "43521066",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": true,
+    "updatedHealthData": true,
+    "fullName": " ARGAÑARAS CERMELE FEDERICO TOMAS",
+    "cuil": "20435210660",
+    "birthday": "2001-06-15T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "calle 88 esq. 23",
+      "postalCode": 1900,
+      "state": "buenos aires",
+      "number": 2685
+    },
+    "_id": "62975bcf1047b3010c4ef42b",
+    "dni": "43521067",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "user",
+    "isRisk": true,
+    "updatedHealthData": true,
+    "fullName": " PAEZ FLORENCIA MARIA INES",
+    "cuil": "27435210673",
+    "birthday": "2001-06-22T15:00:00.000Z",
+    "__v": 0
+  },
+  {
+    "home": {
+      "street": "calle 20",
+      "postalCode": 1900,
+      "state": "buenos aires",
+      "number": 1677
+    },
+    "_id": "62975cb51047b3010c4ef442",
+    "dni": "43317831",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "vacc",
+    "isRisk": false,
+    "updatedHealthData": false,
+    "fullName": " FONTANA JOAQUIN IGNACIO ",
+    "cuil": "23433178319",
+    "birthday": "2001-04-04T15:00:00.000Z",
+    "__v": 0,
+    "vaccinationCenter": "Hospital 9 de Julio"
+  },
+  {
+    "home": {
+      "street": "115",
+      "postalCode": 1884,
+      "state": "buenos aires",
+      "number": 1956
+    },
+    "_id": "62975d111047b3010c4ef445",
+    "dni": "43482029",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "vacc",
+    "isRisk": false,
+    "updatedHealthData": false,
+    "fullName": " EVEQUOZ GUADALUPE",
+    "cuil": "23434820294",
+    "birthday": "2001-06-21T15:00:00.000Z",
+    "__v": 0,
+    "vaccinationCenter": "Polideportivo"
+  },
+  {
+    "home": {
+      "street": "olleros av.",
+      "postalCode": 1426,
+      "state": "ciudad autonoma buenos aires",
+      "number": 2239
+    },
+    "_id": "62975d871047b3010c4ef448",
+    "dni": "32147464",
+    "password": "12345678",
+    "code": "1234",
+    "email": "ejemplo@gmail.com",
+    "emailsPlus": [],
+    "rol": "admin",
+    "isRisk": false,
+    "updatedHealthData": false,
+    "fullName": " PETKOFF BANKOFF KRISTIAN",
+    "cuil": "20321474641",
+    "birthday": "1986-02-09T15:00:00.000Z",
     "__v": 0
   }
 ]

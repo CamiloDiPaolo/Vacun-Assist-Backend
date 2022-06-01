@@ -338,7 +338,19 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
 
   // una vez que se valida correctamente el turno se crea uno nuevo dependiendo el tipo de vacuna
   const vaccine = appointment.vaccine;
-  if (!(vaccine == "FiebreAmarilla")) {
+  const dni = appointment.patientDni;
+
+  console.log(
+    vaccine == "Covid" &&
+      (await hasAppointment(dni, vaccine)) >= MAX_COVID_DOSIS
+  );
+  if (
+    !(vaccine == "FiebreAmarilla") &&
+    !(
+      vaccine == "Covid" &&
+      (await hasAppointment(dni, vaccine)) >= MAX_COVID_DOSIS
+    )
+  ) {
     const newDate = new Date();
     newDate.setHours(0);
     newDate.setMinutes(0);
