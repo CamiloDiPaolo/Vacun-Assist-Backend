@@ -3,11 +3,18 @@ const fs = require("fs");
 const User = require("./../models/userModel");
 const Appointment = require("./../models/appointmentModel");
 
-const DB = "mongodb://localhost:27017/vacunAsist";
+const DB = "mongodb://127.0.0.1:27017/vacunAsist";
 
 mongoose
-  .connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
+.connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
+.then(() => {
+    if (process.argv[2] === "import") {
+      importData();
+    } else if (process.argv[2] === "export") {
+      exportData();
+    } else if (process.argv[2] === "delete") {
+      deleteData();
+    }
     console.log("La conexion con la base de datos fue exitosa");
   });
 
@@ -53,12 +60,5 @@ const importData = async () => {
   }
 };
 
-if (process.argv[2] === "import") {
-  importData();
-} else if (process.argv[2] === "export") {
-  exportData();
-} else if (process.argv[2] === "delete") {
-  deleteData();
-}
 
 console.log(process.argv);
