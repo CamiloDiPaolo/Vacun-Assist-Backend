@@ -42,4 +42,6 @@ userRouter
     res.status(200).json({ status: "success", data: req.user });
   });
 
+userRouter.route("/get-user").get(userController.getUser);
+
 module.exports = userRouter;

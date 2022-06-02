@@ -26,14 +26,11 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 exports.getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ dni: req.params.dni });
+  const user = await User.findOne({ dni: req.body.dni });
 
   if (!user)
     return next(
-      new AppError(
-        `No se encontro al usuario con el dni: ${req.params.dni}`,
-        404
-      )
+      new AppError(`No se encontro al usuario con el dni: ${req.body.dni}`, 404)
     );
 
   res.status(200).json({
