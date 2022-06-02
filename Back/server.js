@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 /////////////////////////////////////////////
 // nos conectamos con la base de datos
 // NOTA: esto tiene que estar en las variables de entorno, junto con la contra del admin
-const DB = "mongodb://localhost:27017/vacunAsist";
+const DB = "mongodb://127.0.0.1:27017/vacunAsist";
 
 mongoose
   .connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -65,7 +65,7 @@ app.use((err, req, res, next) => {
   console.log(err.statusCode);
   res.status(err.statusCode || 500).json({
     status: "fail",
-    message: err.message,
+    message: err.message || 'Ocurrio un error en el servidor... volve a intentar nuevamente',
   });
 });
 
