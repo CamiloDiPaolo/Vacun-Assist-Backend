@@ -32,6 +32,21 @@ exports.hasActiveAppointment = async (dni, vac) => {
 
   return allAppointment.length;
 };
+/**
+ * Esta funcion retorna algun turno activo o pendiente que un dni tnega contra una vacuna
+ * @param {String} dni es el dni correspondiente al paciente de los turnos
+ * @param {String} vac es la vacuna del turno
+ * @returns el primer turno activo/pendiente que se encuentre sobre esa vacuna
+ */
+exports.getActiveAppointment = async (dni, vac) => {
+  const appointment = await Appointment.findOne({
+    $or: [{ state: "Pendiente" }, { state: "Activo" }],
+    vaccine: vac,
+    patientDni: dni,
+  });
+
+  return appointment;
+};
 
 /**
  * esta funcion retorna la diferencia de meses del ultimo turno de una vacuna comparado con la fecha actual
@@ -133,6 +148,26 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
     return "Por tu edad no podes vacunarte con esta vacuna😅";
   return "";
 };
+
+/**
+ * Esta funcion cancela todos los turnos activos/pendientes de un usuario para cierta vacuna
+ * @param {String} dni es el dni correspondiente al paciente de los turnos
+ * @param {String} vac es la vacuna del turno
+ */
+exports.cancelActiveAppointments = async (dni, vaccine) => {
+  const allAppointment = await Appointment.find({
+    $or: [{ state: "Pendiente" }, { state: "Activo" }],
+    vaccine: vaccine,
+    patientDni: dni,
+  });
+
+  allAppointment.forEach(async (appointment) => {
+    await Appointment.findByIdAndUpdate(appointment._id, {
+      state: "Cancelado",
+    });
+  });
+};
+
 /**
  * Esta funcion retorna la fecha actual pero con el tiempo formateado
  * @returns la fecha actual con el tiempo formateado

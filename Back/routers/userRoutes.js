@@ -1,6 +1,7 @@
 const express = require("express");
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
+const vaccineAplication = require("../controllers/vaccineAplication");
 
 const userRouter = express.Router();
 
@@ -19,6 +20,7 @@ userRouter
     authController.signupVacc
   );
 
+// obtenemos todos los usuarios
 userRouter
   .route("/")
   .get(
@@ -42,6 +44,16 @@ userRouter
     res.status(200).json({ status: "success", data: req.user });
   });
 
+// obtenemos los datos de un usuario
 userRouter.route("/get-user/:dni").get(userController.getUser);
+
+// registramos la aplicacion de una vacuna
+userRouter
+  .route("/vaccineAplication")
+  .post(
+    authController.protect,
+    authController.restrictTo("user"),
+    vaccineAplication.vaccineAplication
+  );
 
 module.exports = userRouter;

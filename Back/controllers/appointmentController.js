@@ -1,7 +1,7 @@
 const Appointment = require("../models/appointmentModel");
 const catchAsync = require("../utils/cathAsync");
 const AppError = require("../utils/appError");
-const appointmentUtils = require("../appointmentUtils");
+const appointmentUtils = require("./appointmentUtils");
 
 const MAX_COVID_DOSIS = 4;
 

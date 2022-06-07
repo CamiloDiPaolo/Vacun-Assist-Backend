@@ -28,7 +28,12 @@ const appointmentSchema = mongoose.Schema({
   vaccinationCenter: {
     type: String,
     required: [true, "Un turno debe tener una vacunatorio"],
-    enum: ["Hospital 9 de Julio", "Corralón municipal", "Polideportivo"],
+    enum: [
+      "Hospital 9 de Julio",
+      "Corralón municipal",
+      "Polideportivo",
+      "Externo",
+    ],
   },
   lot: String,
   mark: String,
