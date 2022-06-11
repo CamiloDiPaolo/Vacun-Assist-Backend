@@ -1,4 +1,5 @@
 const Appointment = require("../models/appointmentModel");
+const Stock = require("../models/stockModel");
 const catchAsync = require("../utils/cathAsync");
 const AppError = require("../utils/appError");
 const appointmentUtils = require("./appointmentUtils");
@@ -82,5 +83,37 @@ exports.getStats = catchAsync(async (req, res, next) => {
       daysStats,
       totalAppointment: allAppointments.length,
     },
+  });
+});
+
+exports.addStock = catchAsync(async (req, res, next) => {
+  const stock = await Stock.findOne({
+    vaccine: req.body.vaccine,
+    vaccinationCenter: req.body.vaccinationCenter,
+  });
+
+  const newStock = await Stock.findByIdAndUpdate(stock._id, {
+    cant: stock.cant + req.body.cant,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: newStock,
+  });
+});
+
+exports.subStock = catchAsync(async (req, res, next) => {
+  const stock = await Stock.findOne({
+    vaccine: req.body.vaccine,
+    vaccinationCenter: req.body.vaccinationCenter,
+  });
+
+  const newStock = await Stock.findByIdAndUpdate(stock._id, {
+    cant: stock.cant - 1,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: newStock,
   });
 });

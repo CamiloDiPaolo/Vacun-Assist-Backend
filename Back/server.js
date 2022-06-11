@@ -8,7 +8,10 @@ const morgan = require("morgan");
 // modulos creados por mi
 const userRouter = require("./routers/userRoutes");
 const appointmentRouter = require("./routers/appointmentRoutes");
+const adminRouter = require("./routers/adminRoutes");
 const { PORT, ALLOWED_ACCES_URL } = require("./config");
+
+const Appointment = require("./models/appointmentModel");
 
 // creamos la app express
 const app = express();
@@ -33,6 +36,30 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
   next();
 });
+
+// middleware que se encarga de actualizar los turnos perdidos
+(async () => {
+  const allAppointments = await Appointment.find({});
+  const currentDate = new Date();
+
+  currentDate.setHours(0);
+  currentDate.setMinutes(0);
+  currentDate.setSeconds(0);
+  currentDate.setMilliseconds(0);
+
+  allAppointments.forEach(async (appointment) => {
+    console.log(appointment.vaccinationDate.getTime() < currentDate.getTime());
+    if (
+      appointment.vaccinationDate.getTime() < currentDate.getTime() &&
+      appointment.state == "Activo"
+    ) {
+      await Appointment.findByIdAndUpdate(appointment._id, {
+        state: "Perdido",
+      });
+      console.log(appointment);
+    }
+  });
+})();
 
 /////////////////////////////////////////////
 // nos conectamos con la base de datos
@@ -59,13 +86,16 @@ router.route("/").get((req, res, next) => {
 app.use("/", router);
 app.use("/users", userRouter);
 app.use("/appointment", appointmentRouter);
+app.use("/admin", adminRouter);
 
 // manejador de errores global
 app.use((err, req, res, next) => {
   console.log(err.statusCode);
   res.status(err.statusCode || 500).json({
     status: "fail",
-    message: err.message || 'Ocurrio un error en el servidor... volve a intentar nuevamente',
+    message:
+      err.message ||
+      "Ocurrio un error en el servidor... volve a intentar nuevamente",
   });
 });
 
