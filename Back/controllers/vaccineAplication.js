@@ -104,11 +104,11 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   if (!availability(req.body.vaccine))
     return next(new AppError("No hay disponibilidad para esta vacuna 😥", 403));
 
-  const patient = await User.findOne({ dni: req.params.dni });
+  const patient = await User.findOne({ dni: req.body.dni });
   if (!req.body.birthday) {
     return next(new AppError("falto ingresar el cumple", 404));
   }
-  if (!patient && !req.body.email) {
+  if (!req.body.email) {
     return next(new AppError("falto ingresar el mail", 404));
   }
 
@@ -129,7 +129,6 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   });
 
   // si ya esta registrado el paciente solo devolvemos los turnos nuevos
-
   if (patient) {
     return res.status(201).json({
       status: "success",
