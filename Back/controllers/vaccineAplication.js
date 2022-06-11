@@ -5,7 +5,8 @@ const User = require("./../models/userModel");
 const userController = require("./userController");
 const appointmentController = require("./appointmentController");
 const appointmentUtils = require("./appointmentUtils");
-const { ALLOWED_ACCES_URL } = require("./../config");
+const authController = require("./authController");
+const sendMail = require("../utils/email");
 const MAX_COVID_DOSIS = 4;
 
 exports.vaccineAplication = catchAsync(async (req, res, next) => {
@@ -80,7 +81,6 @@ const isCancelable = async (dni, vaccine, vaccineDate) => {
 };
 
 exports.searchAppointments = catchAsync(async (req, res, next) => {
-  console.log("HOLA QUE TAL", req.params.dni);
   const patient = await User.findOne({ dni: req.params.dni });
 
   // si el dni esta registrado devolvemos sus turnos
@@ -101,11 +101,16 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
 });
 
 exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
-  if (!req.body.birthday)
-    return next(new AppError("falto ingresar el cumple", 404));
-
   if (!availability(req.body.vaccine))
     return next(new AppError("No hay disponibilidad para esta vacuna 😥", 403));
+
+  const patient = await User.findOne({ dni: req.params.dni });
+  if (!req.body.birthday) {
+    return next(new AppError("falto ingresar el cumple", 404));
+  }
+  if (!patient && !req.body.email) {
+    return next(new AppError("falto ingresar el mail", 404));
+  }
 
   // si el usuario ya esta vacunado contra esa vacuna no se permite sacar el turno
   const err = await appointmentValidation(
@@ -115,8 +120,6 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   );
   if (err) return next(new AppError(err, 500));
 
-  console.log("AAAAAAAAAAAA", req.body);
-
   const newAppointments = await appointmentController.createAppointmentLocal({
     vaccine: req.body.vaccine,
     vaccinationCenter: req.user.vaccinationCenter,
@@ -125,9 +128,40 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
     patientDni: req.body.dni,
   });
 
+  // si ya esta registrado el paciente solo devolvemos los turnos nuevos
+
+  if (patient) {
+    return res.status(201).json({
+      status: "success",
+      data: {
+        newAppointments,
+      },
+    });
+  }
+
+  // si todo sale OC registro al usuario en el sistema y le envio su codigo y contraseña por mail
+
+  const userData = await userController.userRenaperNoValid({
+    dni: req.body.dni,
+  });
+  (userData.rol = "user"),
+    (userData.password = authController.randomPassword());
+  userData.code = authController.randomCode();
+  userData.email = req.body.email;
+
+  const newUser = await User.create(userData);
+
+  sendMail({
+    message: `Tu contraseña es: ${userData.password} y tu codigo es: ${userData.code}`,
+    email: req.body.email,
+  });
+
   res.status(201).json({
     status: "success",
-    data: newAppointments,
+    data: {
+      appointments: newAppointments,
+      user: newUser,
+    },
   });
 });
 

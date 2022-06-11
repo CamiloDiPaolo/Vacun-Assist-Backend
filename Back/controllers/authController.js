@@ -272,12 +272,12 @@ exports.restrictTo = (...roles) => {
   };
 };
 
-const randomPassword = () => {
+exports.randomPassword = () => {
   // hay que mejorar esto
   return "12345678";
 };
 
-const randomCode = () => {
+exports.randomCode = () => {
   // hay que mejorar esto
   let code = (Math.random() * 10000).toFixed(0);
   code = code < 1000 ? 1001 : code;
