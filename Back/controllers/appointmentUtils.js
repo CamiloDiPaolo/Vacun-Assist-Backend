@@ -7,7 +7,7 @@ const MAX_COVID_DOSIS = 4;
  * @param {String} vac es la vacuna del turno
  * @returns la cantidad de turnos correspondiente al dni y vacuna pasados como parametro
  */
-exports.hasAppointment = async (dni, vac) => {
+const hasAppointment = async (dni, vac) => {
   const allAppointment = await Appointment.find({
     $or: [{ state: "Finalizado" }, { state: "Activo" }],
     vaccine: vac,
@@ -16,6 +16,7 @@ exports.hasAppointment = async (dni, vac) => {
 
   return allAppointment.length;
 };
+module.exports = hasAppointment;
 
 /**
  * Esta funcion retorna la cantidad de turnos activos y pendientes que tiene un usuario
@@ -23,7 +24,7 @@ exports.hasAppointment = async (dni, vac) => {
  * @param {String} vac es la vacuna del turno
  * @returns la cantidad de turnos correspondiente al dni y vacuna pasados como parametro
  */
-exports.hasActiveAppointment = async (dni, vac) => {
+const hasActiveAppointment = async (dni, vac) => {
   const allAppointment = await Appointment.find({
     $or: [{ state: "Pendiente" }, { state: "Activo" }],
     vaccine: vac,
@@ -32,6 +33,7 @@ exports.hasActiveAppointment = async (dni, vac) => {
 
   return allAppointment.length;
 };
+module.exports = hasActiveAppointment;
 /**
  * Esta funcion retorna algun turno activo o pendiente que un dni tnega contra una vacuna
  * @param {String} dni es el dni correspondiente al paciente de los turnos
