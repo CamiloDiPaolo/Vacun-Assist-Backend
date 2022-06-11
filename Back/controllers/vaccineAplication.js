@@ -28,16 +28,46 @@ exports.vaccineAplication = catchAsync(async (req, res, next) => {
     appointmentUtils.cancelActiveAppointments(req.user.dni, req.body.vaccine);
   }
 
-  console.log(
-    "TIENE TURNOS ACTIVOS: ",
-    await appointmentUtils.hasActiveAppointment(req.user.dni, req.body.vaccine)
-  );
-
   const newAppointment = await Appointment.create(req.body);
 
-  res.status(200).json({
+  // si el usuario ya tiene un turno activo no genero uno proximo
+  if (
+    (await appointmentUtils.hasActiveAppointment(
+      req.user.dni,
+      req.body.vaccine
+    )) != 0 ||
+    req.body.vaccine == "FiebreAmarilla" ||
+    (await appointmentUtils.hasAppointment(req.user.dni, "Covid")) >=
+      MAX_COVID_DOSIS
+  )
+    return res.status(201).json({
+      status: "success",
+      data: newAppointment,
+    });
+
+  // si no tiene turno activo le generamos uno
+  // obtenes la fecha de vacunacion si cumple las condiciones
+  let vaccinationDate = await getAppointmentDate(
+    req.user.birthday,
+    req.body.vaccine,
+    req.user.isRisk,
+    req.user.dni
+  );
+
+  // si no se le asigna fecha entonces el turno esta pendiente a la espera
+  req.body.state = !vaccinationDate ? "Pendiente" : "Activo";
+  if (vaccinationDate) req.body.vaccinationDate = vaccinationDate;
+
+  // si esta todo correcto se sigue
+  req.body.patientDni = req.user.dni;
+  const newActiveAppointment = await Appointment.create(req.body);
+
+  res.status(201).json({
     status: "success",
-    data: newAppointment,
+    data: {
+      finishAppointment: newAppointment,
+      activeAppointment: newActiveAppointment,
+    },
   });
 });
 
@@ -85,9 +115,17 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
 
   // si el dni esta registrado devolvemos sus turnos
   if (patient) {
+    let allAppointment = await Appointment.find({ patientDni: patient.dni });
+    allAppointment = allAppointment.filter((appointment) => {
+      return (
+        appointment.vaccinationDate.getTime() ==
+        appointmentUtils.getCurrentDate().getTime()
+      );
+    });
+
     return res.status(200).json({
       status: "success",
-      data: await Appointment.find({ patientDni: patient.dni }),
+      data: allAppointment,
     });
   }
 
@@ -200,4 +238,119 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
   )
     return "El usuario tiene que esperar mínimo 1 año desde su ultima aplicación para vacunarse nuevamente 😅";
   return "";
+};
+
+/**
+ * Esta funcion devuelve la fecha para el turno que intenta sacar el usuario
+ * @param {Date} birthday es la fehca de nacimiento correspondiente al dni
+ * @param {String} vaccine es la vacuna del turno
+ * @param {Boolean} isRisk si el usuario es de riesgo o no
+ * @param {String} dni es el dni correspondiente al paciente de los turnos
+ * @returns la fecha del turno o null si el turno es pendiente
+ */
+const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
+  const birthdayDate = new Date(birthday);
+  const currentDate = appointmentUtils.getCurrentDate();
+
+  let age = currentDate.getFullYear() - birthdayDate.getFullYear();
+  age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
+
+  // condiciones para la Gripe
+  if (vaccine === "Gripe") {
+    if ((await appointmentUtils.lastAppointmentMonth(dni, vaccine)) >= 12) {
+      currentDate.setUTCDate(currentDate.getDate() + 7);
+      return currentDate;
+    } else if (
+      (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) < 12 &&
+      (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) != null
+    ) {
+      const nextDate = appointmentUtils.getCurrentDate();
+      nextDate.setUTCMonth(
+        (
+          await appointmentUtils.lastAppointment(dni, vaccine)
+        ).vaccinationDate.getMonth()
+      );
+      nextDate.setUTCDate(
+        (
+          await appointmentUtils.lastAppointment(dni, vaccine)
+        ).vaccinationDate.getDate()
+      );
+      nextDate.setFullYear(
+        (
+          await appointmentUtils.lastAppointment(dni, vaccine)
+        ).vaccinationDate.getFullYear() + 1
+      );
+
+      const diffTime = nextDate.getTime() - currentDate.getTime();
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      // si la diferencia de dias es menor o igual a 7 dias se saca el turno a una semana
+      if (diffDays <= 7) {
+        currentDate.setUTCDate(currentDate.getDate() + 7);
+        return currentDate;
+      }
+      // si la diferencia de dias es mayor a 7 se saca a 12 meses de la fecha del ultimo turno
+      return nextDate;
+    }
+    if (age < 60) {
+      currentDate.setUTCMonth(currentDate.getMonth() + 6);
+      return currentDate;
+    }
+    // si es mayor de 60 años
+    currentDate.setUTCMonth(currentDate.getMonth() + 3);
+    return currentDate;
+  }
+
+  // condiciones para el Covid
+  if (vaccine == "Covid") {
+    if (age > 18) {
+      if (
+        isRisk &&
+        (await appointmentUtils.hasAppointment(dni, vaccine)) == 0
+      ) {
+        currentDate.setUTCDate(currentDate.getDate() + 7);
+        return currentDate;
+      } else if (
+        (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) >= 3
+      ) {
+        // si el usuario no es de riesgo y tiene una vacuna de covid hace mas de 3 meses se saca a 7 dias
+        currentDate.setUTCDate(currentDate.getDate() + 7);
+        return currentDate;
+      } else if (
+        (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) < 3 &&
+        (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) != null
+      ) {
+        const nextDate = appointmentUtils.getCurrentDate();
+        nextDate.setUTCDate(
+          (
+            await appointmentUtils.lastAppointment(dni, vaccine)
+          ).vaccinationDate.getDate()
+        );
+        nextDate.setMonth(
+          (
+            await appointmentUtils.lastAppointment(dni, vaccine)
+          ).vaccinationDate.getMonth() + 3
+        );
+
+        // si el usuario no es de riesgo y tiene una vacuna de covid hace menos de 3 meses se saca a 3 meses de la fecha del ultimo turno
+        const diffTime = nextDate.getTime() - currentDate.getTime();
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        // si la diferencia de dias es menor o igual a 7 dias se saca el turno a una semana
+        if (diffDays <= 7) {
+          currentDate.setUTCDate(currentDate.getDate() + 7);
+          return currentDate;
+        }
+        // si la diferencia de dias es mayor a 7 se saca a 3 meses d ela fecha del ultimo turno
+        return nextDate;
+      }
+    }
+    if (age > 60) {
+      currentDate.setUTCDate(currentDate.getDate() + 7);
+      return currentDate;
+    }
+    return null;
+  }
+  // condiciones para la Fiebre Amarilla
+  if (vaccine == "FiebreAmarilla") return null;
+  // si no se asgian nada algo se rompio feo
+  throw new AppError("Algo salio mal a asignar el turno....", 500);
 };
