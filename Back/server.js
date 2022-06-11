@@ -49,8 +49,8 @@ app.use((req, res, next) => {
 
   allAppointments.forEach(async (appointment) => {
     if (
-      appointment.vaccinationDate.getTime() < currentDate.getTime() &&
-      appointment.state == "Activo"
+      appointment.state == "Activo" &&
+      appointment.vaccinationDate.getTime() < currentDate.getTime()
     ) {
       await Appointment.findByIdAndUpdate(appointment._id, {
         state: "Perdido",
