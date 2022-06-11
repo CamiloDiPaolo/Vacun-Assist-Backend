@@ -119,13 +119,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 exports.signupVacc = catchAsync(async (req, res, next) => {
   // comprobamso que se ingresen todos los datos
-  if (
-    !req.body.dni ||
-    !req.body.email ||
-    !req.body.password ||
-    !req.body.tramit ||
-    !req.body.gender
-  )
+  if (!req.body.dni || !req.body.email)
     return next(new AppError("Por favor ingresa todos los datos", 400));
   // verificamos que no exista alguien conese dni
   const user = await User.find({ dni: req.body.dni });
@@ -150,7 +144,7 @@ exports.signupVacc = catchAsync(async (req, res, next) => {
     email: req.body.email,
   });
 
-  const dataNewUser = await userController.userRenaper(req.body);
+  const dataNewUser = await User.create(req.body);
 
   // guardamos los datos del usuario que quiere registrarse en una cookie
   res.cookie("userAuthData", dataNewUser);

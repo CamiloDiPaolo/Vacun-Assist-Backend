@@ -111,6 +111,60 @@ exports.userRenaper = async (usrData) => {
   return newUserData;
 };
 /**
+ * Esta funcion retorna lso datos de una persona del renaper con el formato utilizado en la base de datos
+ * @param {Object} usrData son los datos del usuario utilizados para el registro: dni, password, email y rol
+ * @returns un objeto de usuario con todos los datos del renaper formateados, o tira un error si algo sale mal con la API
+ */
+exports.userRenaperNoValid = async (usrData) => {
+  // obtenemos los datos
+  // objeto de configuracion axios
+  const options = {
+    url: "/person/lookup",
+    method: "post",
+    baseURL: URL_RENAPER,
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+      "X-Api-Key": KEY_RENAPER,
+      "Content-Type": "application/json",
+    },
+    data: { dni: usrData.dni },
+    // data: { dni: "43521062" },
+    timeout: 5000,
+  };
+  // obtenemos los datos de la persona del renaper
+  // chequeamos que el error sea un error reintenable (403)
+  let resRenaper;
+  try {
+    resRenaper = await axios(options);
+  } catch (err) {
+    if (
+      err.response.status == 403 ||
+      err.response.status == 429 ||
+      err.response.status == 502
+    )
+      throw new AppError("Error de conexión con el RENAPER😢", 403);
+    throw new AppError(
+      `No se pudo encontrar datos correspondientes a ese dni`,
+      404
+    );
+  }
+  const userEspañol = resRenaper.data.data
+    ? resRenaper.data.data
+    : resRenaper.data;
+
+  // chequeamos si se encontro a la persona
+  if (!userEspañol) throw new AppError("No se encontro a la persona", 404);
+
+  // si la persona es una persona juridica devolvemos un error
+  if (userEspañol.tipoPersona === "JURIDICA")
+    throw new AppError("Solo se aceptan personas fisicas", 401);
+
+  // pasamos la data del usuario al formato de la base de datos
+  const newUserData = dataFormat(userEspañol, usrData);
+
+  return newUserData;
+};
+/**
  * Esta funcion retorna si un dni es valido para la API de renaper
  * @param {String} dni dni de la persona a validar
  * @param {String} tramit nro de tramite de la persona a validar (en este caso recibe el CUIT)

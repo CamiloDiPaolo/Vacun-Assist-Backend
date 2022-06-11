@@ -5,6 +5,54 @@ const appointmentUtils = require("./appointmentUtils");
 
 const MAX_COVID_DOSIS = 4;
 
+exports.createAppointmentLocal = async (appointmentData) => {
+  console.log(appointmentData);
+  if (
+    !appointmentData.vaccine ||
+    !appointmentData.vaccinationCenter ||
+    !appointmentData.lot ||
+    !appointmentData.mark ||
+    !appointmentData.patientDni
+  )
+    throw new AppError("Faltaron ingresar datos", 400);
+
+  appointmentData.vaccinationDate = appointmentUtils.getCurrentDate();
+  appointmentData.state = "Finalizado";
+
+  const newAppointment = await Appointment.create(appointmentData);
+
+  // una vez que se valida correctamente el turno se crea uno nuevo dependiendo el tipo de vacuna
+  const vaccine = newAppointment.vaccine;
+  const dni = newAppointment.patientDni;
+  let appointment = null;
+
+  if (
+    !(vaccine == "FiebreAmarilla") &&
+    !(
+      vaccine == "Covid" &&
+      (await appointmentUtils.hasAppointment(dni, vaccine)) >= MAX_COVID_DOSIS
+    )
+  ) {
+    const newDate = appointmentUtils.getCurrentDate();
+
+    // si la vacuna es gripe el turno se da a un año, si es covid a 3 meses
+    if (vaccine == "Covid") newDate.setUTCMonth(newDate.getMonth() + 3);
+    else newDate.setUTCFullYear(newDate.getFullYear() + 1);
+
+    // eliminamos los campos para que crea mongoose para no tener problemas al crear uno nuevo
+    const newAppointmentActive = {
+      state: "Activo",
+      patientDni: newAppointment.patientDni,
+      vaccine: newAppointment.vaccine,
+      vaccinationDate: newDate,
+      issueDate: new Date(),
+      vaccinationCenter: newAppointment.vaccinationCenter,
+    };
+    appointment = await Appointment.create(newAppointmentActive);
+  }
+
+  return { currentAppointment: newAppointment, newAppointment: appointment };
+};
 /**
  * Esta funcion registra un turno virtual si el usuario cumple todas las condiciones
  * @returns el turno registrado o un error

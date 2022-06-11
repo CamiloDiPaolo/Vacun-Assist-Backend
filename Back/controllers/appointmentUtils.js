@@ -122,7 +122,7 @@ exports.lastAppointment = async (dni, vac) => {
  * @param {Date} birthday es la fehca de nacimiento correspondiente al dni
  * @returns un string vacio si no hay error o un string con el error correspondiente
  */
-const appointmentValidation = async (dni, vaccine, birthday) => {
+exports.appointmentValidation = async (dni, vaccine, birthday) => {
   const birthdayDate = new Date(birthday);
   const currentDate = new Date();
   let age = currentDate.getFullYear() - birthdayDate.getFullYear();
