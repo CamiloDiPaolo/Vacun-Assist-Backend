@@ -119,7 +119,8 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
     allAppointment = allAppointment.filter((appointment) => {
       return (
         appointment.vaccinationDate.getTime() ==
-        appointmentUtils.getCurrentDate().getTime()
+          appointmentUtils.getCurrentDate().getTime() ||
+        appointment.state == "Activo"
       );
     });
 
