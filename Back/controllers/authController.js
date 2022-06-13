@@ -115,7 +115,8 @@ exports.signup = catchAsync(async (req, res, next) => {
   res.cookie("userAuthData", dataNewUser, cookieOptions);
 
   // creamos el JWT y lo almacenamos en la cookie
-  createSendTokenMail(randomCode(), res, req.body.email);
+  //Insertar randomCode() en vez de 1234
+  createSendTokenMail(1234, res, req.body.email);
 });
 exports.signupVacc = catchAsync(async (req, res, next) => {
   // comprobamso que se ingresen todos los datos

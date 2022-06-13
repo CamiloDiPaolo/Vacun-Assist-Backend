@@ -20,4 +20,12 @@ adminRouter
     adminUtils.subStock
   );
 
+adminRouter
+  .route("/get-stats")
+  .get(
+    authController.protect,
+    authController.restrictTo("admin"),
+    adminUtils.getStats
+  );
+
 module.exports = adminRouter;
