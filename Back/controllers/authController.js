@@ -287,7 +287,7 @@ const randomPassword = () => {
 
 exports.randomPassword;
 
-exports.randomCode = () => {
+const randomCode = () => {
   // hay que mejorar esto
   let code = (Math.random() * 10000).toFixed(0);
   code = code < 1000 ? 1001 : code;
@@ -295,3 +295,5 @@ exports.randomCode = () => {
   // return code;
   return 1234; // por ahora retorno esto para probar
 };
+
+exports.randomCode;
