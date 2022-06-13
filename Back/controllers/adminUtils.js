@@ -10,7 +10,6 @@ exports.getStats = catchAsync(async (req, res, next) => {
   // cantidad ed turnos por dia de semana
   // cantidad de turnos por facuna
   // cantidad total de turnos
-
   const vaccinationCenterStats = {
     "Hospital 9 de Julio": allAppointments.filter(
       (appointment) => appointment.vaccinationCenter == "Hospital 9 de Julio"
@@ -38,38 +37,35 @@ exports.getStats = catchAsync(async (req, res, next) => {
     ).length,
   };
 
-  allAppointments.filter((appointment) =>
-    console.log(appointment.vaccinationDate.toString().split(" ")[0])
+  const allAppointmentsWithoutPendientes = allAppointments.filter(
+    (appointment) => appointment.state !== "Pendiente"
   );
-
-  console.log();
-
   const daysStats = {
-    Monday: allAppointments.filter(
+    Monday: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Mon"
     ).length,
-    Tuesday: allAppointments.filter(
+    Tuesday: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Tue"
     ).length,
-    Wednesday: allAppointments.filter(
+    Wednesday: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Wed"
     ).length,
-    Thursday: allAppointments.filter(
+    Thursday: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Thu"
     ).length,
-    Friday: allAppointments.filter(
+    Friday: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Fri"
     ).length,
-    Saturday: allAppointments.filter(
+    Saturday: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Sat"
     ).length,
-    Sunday: allAppointments.filter(
+    Sunday: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Sun"
     ).length,

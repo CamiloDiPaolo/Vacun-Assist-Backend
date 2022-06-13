@@ -180,7 +180,10 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
     (await appointmentUtils.hasAppointment(dni, vaccine)) >= MAX_COVID_DOSIS
   )
     return `El usuario ya tiene ${MAX_COVID_DOSIS} dosis aplicadas 😅`;
-  if (vaccine == "FiebreAmarilla" && (await hasAppointment(dni, vaccine)) > 0)
+  if (
+    vaccine == "FiebreAmarilla" &&
+    (await appointmentUtils.hasAppointment(dni, vaccine)) > 0
+  )
     return `El usuario ya tiene la dosis aplicada 😅`;
   // comprobamos los temas de la edad
   if (age < 18 && vaccine == "Covid")
