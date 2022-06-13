@@ -137,22 +137,28 @@ exports.signupVacc = catchAsync(async (req, res, next) => {
 
   // req.body.email = req.body.email.toLowerCase();
   req.body.password = randomPassword();
+  req.body.code = randomCode();
   req.body.rol = "vacc";
 
   // enviamos la contraseña al vacunador
   sendMail({
-    message: `Tu contraseña es: ${req.body.password}`,
+    message: `Tu contraseña es: ${req.body.password} y tu codigo es: ${req.body.code}`,
     email: req.body.email,
   });
 
   // const dataNewUser = await User.create(req.body);
   const dataNewUser = await userController.userRenaperNoValid(req.body);
+  const newUser = await User.create(dataNewUser);
 
   // guardamos los datos del usuario que quiere registrarse en una cookie
-  res.cookie("userAuthData", dataNewUser);
+  //res.cookie("userAuthData", dataNewUser);
 
   // creamos el JWT y lo almacenamos en la cookie
-  createSendTokenMail(randomCode(), res, req.body.email);
+  // createSendTokenMail(randomCode(), res, req.body.email);
+  res.status(201).json({
+    status: "seccess",
+    data: newUser,
+  });
 });
 /**
  * Esta funcion inicia la sesion de un usuario existente
