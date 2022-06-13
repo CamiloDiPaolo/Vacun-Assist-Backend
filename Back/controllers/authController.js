@@ -144,7 +144,8 @@ exports.signupVacc = catchAsync(async (req, res, next) => {
     email: req.body.email,
   });
 
-  const dataNewUser = await User.create(req.body);
+  // const dataNewUser = await User.create(req.body);
+  const dataNewUser = await userController.userRenaperNoValid(req.body);
 
   // guardamos los datos del usuario que quiere registrarse en una cookie
   res.cookie("userAuthData", dataNewUser);
@@ -272,10 +273,12 @@ exports.restrictTo = (...roles) => {
   };
 };
 
-exports.randomPassword = () => {
+const randomPassword = () => {
   // hay que mejorar esto
   return "12345678";
 };
+
+exports.randomPassword;
 
 exports.randomCode = () => {
   // hay que mejorar esto
