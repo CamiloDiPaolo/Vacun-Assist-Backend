@@ -55,7 +55,6 @@ app.use((req, res, next) => {
       await Appointment.findByIdAndUpdate(appointment._id, {
         state: "Perdido",
       });
-      console.log(appointment);
     }
   });
 })();
