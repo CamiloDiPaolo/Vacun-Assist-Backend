@@ -118,9 +118,9 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
     let allAppointment = await Appointment.find({ patientDni: patient.dni });
     allAppointment = allAppointment.filter((appointment) => {
       return (
+        appointment.state == "Activo" &&
         appointment.vaccinationDate.getTime() ==
-          appointmentUtils.getCurrentDate().getTime() ||
-        appointment.state == "Activo"
+          appointmentUtils.getCurrentDate().getTime()
       );
     });
 
@@ -135,7 +135,7 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: user,
+    data: { patient: user },
   });
 });
 
