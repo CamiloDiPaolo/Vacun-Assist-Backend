@@ -118,48 +118,6 @@ exports.signup = catchAsync(async (req, res, next) => {
   //Insertar randomCode() en vez de 1234
   createSendTokenMail(1234, res, req.body.email);
 });
-exports.signupVacc = catchAsync(async (req, res, next) => {
-  // comprobamso que se ingresen todos los datos
-  if (!req.body.dni || !req.body.email)
-    return next(new AppError("Por favor ingresa todos los datos", 400));
-  // verificamos que no exista alguien conese dni
-  const user = await User.find({ dni: req.body.dni });
-  if (user.length)
-    return next(new AppError("El DNI ingresado ya está registrado.", 400));
-
-  if (!req.body.vaccinationCenter)
-    return next(
-      new AppError(
-        "Un vacunador debe tener asignado un centro de vacunacion",
-        400
-      )
-    );
-
-  // req.body.email = req.body.email.toLowerCase();
-  req.body.password = randomPassword();
-  req.body.code = randomCode();
-  req.body.rol = "vacc";
-
-  // enviamos la contraseña al vacunador
-  sendMail({
-    message: `Tu contraseña es: ${req.body.password} y tu codigo es: ${req.body.code}`,
-    email: req.body.email,
-  });
-
-  // const dataNewUser = await User.create(req.body);
-  const dataNewUser = await userController.userRenaperNoValid(req.body);
-  const newUser = await User.create(dataNewUser);
-
-  // guardamos los datos del usuario que quiere registrarse en una cookie
-  //res.cookie("userAuthData", dataNewUser);
-
-  // creamos el JWT y lo almacenamos en la cookie
-  // createSendTokenMail(randomCode(), res, req.body.email);
-  res.status(201).json({
-    status: "seccess",
-    data: newUser,
-  });
-});
 /**
  * Esta funcion inicia la sesion de un usuario existente
  * @param {Request} req es el objeto request

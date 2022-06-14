@@ -2,6 +2,7 @@ const express = require("express");
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
 const vaccineAplication = require("../controllers/vaccineAplication");
+const adminUtils = require("../controllers/adminUtils");
 
 const userRouter = express.Router();
 
@@ -17,7 +18,7 @@ userRouter
   .post(
     authController.protect,
     authController.restrictTo("admin"),
-    authController.signupVacc
+    adminUtils.signupVacc
   );
 
 // obtenemos todos los usuarios
@@ -45,7 +46,16 @@ userRouter
   });
 
 // obtenemos los datos de un usuario
-userRouter.route("/get-user/:dni").get(userController.getUser);
+// userRouter.route("/get-user/:dni").get(userController.getUser);
+
+// obtenemos los datos de un usuario por el renaper
+userRouter
+  .route("/get-user-renaper/:dni")
+  .get(
+    authController.protect,
+    authController.restrictTo("admin"),
+    adminUtils.getUserRenaper
+  );
 
 // registramos la aplicacion de una vacuna
 userRouter
