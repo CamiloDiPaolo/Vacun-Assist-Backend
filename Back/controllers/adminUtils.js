@@ -89,7 +89,7 @@ exports.addStock = catchAsync(async (req, res, next) => {
   });
 
   const newStock = await Stock.findByIdAndUpdate(stock._id, {
-    cant: stock.cant + req.body.cant,
+    cant: stock.cant + Number(req.body.cant),
   });
 
   res.status(200).json({
