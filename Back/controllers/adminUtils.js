@@ -134,8 +134,8 @@ exports.signupVacc = catchAsync(async (req, res, next) => {
       )
     );
 
-  req.body.password = authController.randomPassword();
-  req.body.code = authController.randomCode();
+  req.body.password = randomPassword();
+  req.body.code = randomCode();
   req.body.rol = "vacc";
 
   sendMail({
@@ -159,3 +159,17 @@ exports.getUserRenaper = catchAsync(async (req, res, next) => {
     data: user,
   });
 });
+
+const randomPassword = () => {
+  // hay que mejorar esto
+  return "12345678";
+};
+
+const randomCode = () => {
+  // hay que mejorar esto
+  let code = (Math.random() * 10000).toFixed(0);
+  code = code < 1000 ? 1001 : code;
+  code = code == 10000 ? 9999 : code; // seria gracioso que justo justo sea 10000, osea es una probabilidad re chica alta mala leche tenia si justo pasaba esto en la demo jajaja igual ni idea pq escribo este comentario tan largo si nadie lo va a leer en fin aguante la fafafa
+  // return code;
+  return 1234; // por ahora retorno esto para probar
+};

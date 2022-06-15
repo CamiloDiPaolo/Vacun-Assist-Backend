@@ -34,6 +34,7 @@ app.use((req, res, next) => {
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
   );
   res.setHeader("Access-Control-Allow-Credentials", true);
+  console.log("LLEGUE A CHEQUEAR EL CORS");
   next();
 });
 

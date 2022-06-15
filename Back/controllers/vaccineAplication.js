@@ -182,9 +182,8 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   const userData = await userController.userRenaperNoValid({
     dni: req.body.dni,
   });
-  (userData.rol = "user"),
-    (userData.password = authController.randomPassword());
-  userData.code = authController.randomCode();
+  (userData.rol = "user"), (userData.password = randomPassword());
+  userData.code = randomCode();
   userData.email = req.body.email;
 
   const newUser = await User.create(userData);
@@ -232,9 +231,17 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
   if (
     vaccine == "Covid" &&
     (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) < 3 &&
-    (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) != null
+    (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) != null &&
+    !(await appointmentUtils.hasActiveAppointment(dni, vaccine))
   )
     return "El usuario tiene que esperar mínimo 3 meses desde su ultima aplicación para vacunarse nuevamente 😅";
+  if (
+    vaccine == "Covid" &&
+    (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) < 3 &&
+    (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) != null &&
+    (await appointmentUtils.hasActiveAppointment(dni, vaccine))
+  )
+    return "Ya tenes un turno contra esta vacuna o tenes un turno en espera 😅";
   if (
     vaccine == "Gripe" &&
     (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) < 12 &&
@@ -357,4 +364,18 @@ const getAppointmentDate = async (birthday, vaccine, isRisk, dni) => {
   if (vaccine == "FiebreAmarilla") return null;
   // si no se asgian nada algo se rompio feo
   throw new AppError("Algo salio mal a asignar el turno....", 500);
+};
+
+const randomPassword = () => {
+  // hay que mejorar esto
+  return "12345678";
+};
+
+const randomCode = () => {
+  // hay que mejorar esto
+  let code = (Math.random() * 10000).toFixed(0);
+  code = code < 1000 ? 1001 : code;
+  code = code == 10000 ? 9999 : code; // seria gracioso que justo justo sea 10000, osea es una probabilidad re chica alta mala leche tenia si justo pasaba esto en la demo jajaja igual ni idea pq escribo este comentario tan largo si nadie lo va a leer en fin aguante la fafafa
+  // return code;
+  return 1234; // por ahora retorno esto para probar
 };
