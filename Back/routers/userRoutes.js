@@ -46,7 +46,7 @@ userRouter
   });
 
 // obtenemos los datos de un usuario
-// userRouter.route("/get-user/:dni").get(userController.getUser);
+userRouter.route("/get-user/:dni").get(userController.getUser);
 
 // obtenemos los datos de un usuario por el renaper
 userRouter
