@@ -30,44 +30,9 @@ exports.vaccineAplication = catchAsync(async (req, res, next) => {
 
   const newAppointment = await Appointment.create(req.body);
 
-  // si el usuario ya tiene un turno activo no genero uno proximo
-  if (
-    (await appointmentUtils.hasActiveAppointment(
-      req.user.dni,
-      req.body.vaccine
-    )) != 0 ||
-    req.body.vaccine == "FiebreAmarilla" ||
-    (await appointmentUtils.hasAppointment(req.user.dni, "Covid")) >=
-      MAX_COVID_DOSIS
-  )
-    return res.status(201).json({
-      status: "success",
-      data: newAppointment,
-    });
-
-  // si no tiene turno activo le generamos uno
-  // obtenes la fecha de vacunacion si cumple las condiciones
-  let vaccinationDate = await getAppointmentDate(
-    req.user.birthday,
-    req.body.vaccine,
-    req.user.isRisk,
-    req.user.dni
-  );
-
-  // si no se le asigna fecha entonces el turno esta pendiente a la espera
-  req.body.state = !vaccinationDate ? "Pendiente" : "Activo";
-  if (vaccinationDate) req.body.vaccinationDate = vaccinationDate;
-
-  // si esta todo correcto se sigue
-  req.body.patientDni = req.user.dni;
-  const newActiveAppointment = await Appointment.create(req.body);
-
   res.status(201).json({
     status: "success",
-    data: {
-      finishAppointment: newAppointment,
-      activeAppointment: newActiveAppointment,
-    },
+    data: newAppointment,
   });
 });
 
