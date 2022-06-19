@@ -18,6 +18,7 @@ exports.vaccineAplication = catchAsync(async (req, res, next) => {
   req.body.vaccinationCenter = "Externo";
 
   // si el usuario ya tiene un turno activo contra la vacuna se debe ver si cancelarlo o no
+  console.log(await isCancelable(req.user.dni, req.body.vaccine));
   if (await isCancelable(req.user.dni, req.body.vaccine)) {
     appointmentUtils.cancelActiveAppointments(req.user.dni, req.body.vaccine);
   }
@@ -72,9 +73,10 @@ const isCancelable = async (dni, vaccine) => {
     return true;
 
   // si con la nueva vacuna se completan las 4 dosis de covid
+  console.log(await appointmentUtils.hasAppointment(dni, vaccine));
   if (
     vaccine == "Covid" &&
-    appointmentUtils.hasAppointment(dni, vaccine) >= MAX_COVID_DOSIS
+    (await appointmentUtils.hasAppointment(dni, vaccine)) >= MAX_COVID_DOSIS
   )
     return true;
 

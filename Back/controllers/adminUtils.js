@@ -10,8 +10,10 @@ const sendMail = require("../utils/email");
 exports.getStats = catchAsync(async (req, res, next) => {
   let allAppointments = await Appointment.find();
   if (req.body.date1 && req.body.date2) {
-    const date1 = req.body.date1.getTime();
-    const date2 = req.body.date2.getTime();
+    console.log(req.body);
+    const date1 = new Date(req.body.date1).getTime();
+    const date2 = new Date(req.body.date2).getTime();
+    console.log(date1, date2);
     allAppointments = allAppointments.filter((appointment) => {
       return (
         appointment.vaccinationDate.getTime() <= date2 &&

@@ -178,6 +178,8 @@ exports.cancelActiveAppointments = async (dni, vaccine) => {
     vaccine: vaccine,
     patientDni: dni,
   });
+  console.log("--------------------------- Todos ---------------------");
+  console.log(allAppointment);
 
   allAppointment.forEach(async (appointment) => {
     await Appointment.findByIdAndUpdate(appointment._id, {
@@ -187,7 +189,7 @@ exports.cancelActiveAppointments = async (dni, vaccine) => {
 };
 
 exports.modifyActiveAppointments = async (dni, vaccine, date) => {
-  const appointment = await Appointment.find({
+  const appointment = await Appointment.findOne({
     state: "Activo",
     vaccine: vaccine,
     patientDni: dni,
