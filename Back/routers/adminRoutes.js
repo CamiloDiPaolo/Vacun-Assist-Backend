@@ -22,7 +22,7 @@ adminRouter
 
 adminRouter
   .route("/get-stats")
-  .get(
+  .post(
     authController.protect,
     authController.restrictTo("admin"),
     adminUtils.getStats

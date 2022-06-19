@@ -8,7 +8,17 @@ const userController = require("./userController");
 const sendMail = require("../utils/email");
 
 exports.getStats = catchAsync(async (req, res, next) => {
-  const allAppointments = await Appointment.find();
+  let allAppointments = await Appointment.find();
+  if (req.body.date1 && req.body.date2) {
+    const date1 = req.body.date1.getTime();
+    const date2 = req.body.date2.getTime();
+    allAppointments = allAppointments.filter((appointment) => {
+      return (
+        appointment.vaccinationDate.getTime() <= date2 &&
+        appointment.vaccinationDate.getTime() >= date1
+      );
+    });
+  }
   // cantidad de turnos por vacuatorio
   // cantidad ed turnos por dia de semana
   // cantidad de turnos por facuna
