@@ -186,6 +186,22 @@ exports.cancelActiveAppointments = async (dni, vaccine) => {
   });
 };
 
+exports.modifyActiveAppointments = async (dni, vaccine, date) => {
+  const appointment = await Appointment.find({
+    state: "Activo",
+    vaccine: vaccine,
+    patientDni: dni,
+  });
+
+  if (vaccine === "Covid") date.setUTCMonth(date.getMonth() + 3);
+  else date.setFullYear(date.getFullYear() + 1);
+
+  // aplazamos el turno
+  await Appointment.findByIdAndUpdate(appointment._id, {
+    vaccinationDate: date,
+  });
+};
+
 /**
  * Esta funcion retorna la fecha actual pero con el tiempo formateado
  * @returns la fecha actual con el tiempo formateado
