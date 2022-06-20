@@ -33,7 +33,7 @@ exports.getStats = catchAsync(async (req, res, next) => {
       (appointment) => appointment.vaccinationCenter == "Polideportivo"
     ).length,
     "Corralón Municipal": allAppointments.filter(
-      (appointment) => appointment.vaccinationCenter == "Corralón Municipal"
+      (appointment) => appointment.vaccinationCenter == "Corralón municipal"
     ).length,
     Externo: allAppointments.filter(
       (appointment) => appointment.vaccinationCenter == "Externo"
