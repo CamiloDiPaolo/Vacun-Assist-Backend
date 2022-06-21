@@ -2,6 +2,7 @@ const catchAsync = require("./../utils/cathAsync");
 const AppError = require("./../utils/appError");
 const Appointment = require("./../models/appointmentModel");
 const User = require("./../models/userModel");
+const Stock = require("./../models/stockModel");
 const userController = require("./userController");
 const appointmentController = require("./appointmentController");
 const appointmentUtils = require("./appointmentUtils");
@@ -181,7 +182,13 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
 });
 
 const availability = (vaccine) => {
-  return true;
+  try{
+    const stock = await Stock.findOne({vaccinationCenter: req.user.vaccinationCenter, vaccine: vaccine})
+  
+    return stock.cant > 0;
+  }catch(){
+    return false
+  }
 };
 
 const appointmentValidation = async (dni, vaccine, birthday) => {
