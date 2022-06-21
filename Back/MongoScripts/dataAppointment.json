@@ -1,132 +1,292 @@
-[
-  {
-    "_id": "629756c81047b3010c4ef3c9",
-    "state": "Finalizado",
-    "patientDni": 43521063,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-02-08T03:00:00.000Z",
-    "issueDate": "2022-02-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+[{
+  "_id": {
+    "$oid": "62b0d944c559d7ad6c8cd0c7"
   },
-  {
-    "_id": "629756cd1047b3010c4ef3d1",
-    "state": "Finalizado",
-    "patientDni": 43521063,
-    "vaccine": "Gripe",
-    "vaccinationDate": "2021-02-08T03:00:00.000Z",
-    "issueDate": "2021-02-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "state": "Activo",
+  "patientDni": 13521062,
+  "vaccine": "FiebreAmarilla",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1665720000000"
+    }
   },
-  {
-    "_id": "6297575f1047b3010c4ef3dc",
-    "state": "Finalizado",
-    "patientDni": 43521064,
-    "vaccine": "Gripe",
-    "vaccinationDate": "2022-05-01T03:00:00.000Z",
-    "issueDate": "2022-05-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
   },
-  {
-    "_id": "629757671047b3010c4ef3e3",
-    "state": "Finalizado",
-    "patientDni": 43521064,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-05-01T03:00:00.000Z",
-    "issueDate": "2022-05-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "vaccinationCenter": "Polideportivo",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0d9a0c559d7ad6c8cd0d4"
   },
-  {
-    "_id": "629757e01047b3010c4ef3ed",
-    "state": "Finalizado",
-    "patientDni": 43521065,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-03-02T03:00:00.000Z",
-    "issueDate": "2022-03-02T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "state": "Activo",
+  "patientDni": 13521062,
+  "vaccine": "Gripe",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1657598400000"
+    }
   },
-  {
-    "_id": "629757e81047b3010c4ef3f5",
-    "state": "Finalizado",
-    "patientDni": 43521065,
-    "vaccine": "Gripe",
-    "vaccinationDate": "2021-06-03T03:00:00.000Z",
-    "issueDate": "2021-06-03T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
   },
-  {
-    "_id": "62975b421047b3010c4ef3ff",
-    "state": "Finalizado",
-    "patientDni": 43521066,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-06-08T03:00:00.000Z",
-    "issueDate": "2022-06-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "vaccinationCenter": "Polideportivo",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0da17c559d7ad6c8cd0e3"
   },
-  {
-    "_id": "62975b501047b3010c4ef40b",
-    "state": "Finalizado",
-    "patientDni": 43521066,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-09-08T03:00:00.000Z",
-    "issueDate": "2022-06-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "state": "Activo",
+  "patientDni": 43521061,
+  "vaccine": "Gripe",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1656561600000"
+    }
   },
-  {
-    "_id": "62975b601047b3010c4ef417",
-    "state": "Finalizado",
-    "patientDni": 43521066,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-12-08T03:00:00.000Z",
-    "issueDate": "2022-06-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
   },
-  {
-    "_id": "62975b6f1047b3010c4ef426",
-    "state": "Activo",
-    "patientDni": 43521066,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-06-02T03:00:00.000Z",
-    "issueDate": "2022-06-01T12:02:07.204Z",
-    "vaccinationCenter": "Polideportivo",
-    "__v": 0
+  "vaccinationCenter": "Hospital 9 de Julio",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0da1cc559d7ad6c8cd0eb"
   },
-  {
-    "_id": "62975bf71047b3010c4ef432",
-    "state": "Activo",
-    "patientDni": 43521067,
-    "vaccine": "Covid",
-    "vaccinationDate": "2022-06-02T03:00:00.000Z",
-    "issueDate": "2022-06-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "state": "Activo",
+  "patientDni": 43521061,
+  "vaccine": "Covid",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1670644800000"
+    }
   },
-  {
-    "_id": "62975bfc1047b3010c4ef43a",
-    "state": "Activo",
-    "patientDni": 43521067,
-    "vaccine": "Gripe",
-    "vaccinationDate": "2022-06-02T03:00:00.000Z",
-    "issueDate": "2022-06-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
   },
-  {
-    "_id": "62975c031047b3010c4ef43f",
-    "state": "Activo",
-    "patientDni": 43521067,
-    "vaccine": "FiebreAmarilla",
-    "issueDate": "2022-06-01T12:02:07.204Z",
-    "vaccinationCenter": "Hospital 9 de Julio",
-    "__v": 0,
-    "vaccinationDate": "2022-06-02T03:00:00.000Z"
-  }
-]
+  "vaccinationCenter": "Hospital 9 de Julio",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0dadac559d7ad6c8cd0ff"
+  },
+  "state": "Activo",
+  "patientDni": 43521060,
+  "vaccine": "FiebreAmarilla",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1655784000000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Hospital 9 de Julio",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0db04c559d7ad6c8cd108"
+  },
+  "state": "Activo",
+  "patientDni": 43521060,
+  "vaccine": "Gripe",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1655784000000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Hospital 9 de Julio",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0db09c559d7ad6c8cd110"
+  },
+  "state": "Activo",
+  "patientDni": 43521060,
+  "vaccine": "Covid",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1657684800000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Hospital 9 de Julio",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0dbafc559d7ad6c8cd11f"
+  },
+  "state": "Activo",
+  "patientDni": 43521064,
+  "vaccine": "FiebreAmarilla",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1655956800000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Corralón municipal",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0dbefc559d7ad6c8cd128"
+  },
+  "state": "Activo",
+  "patientDni": 43521064,
+  "vaccine": "Gripe",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1655784000000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Hospital 9 de Julio",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0dc2ec559d7ad6c8cd134"
+  },
+  "state": "Finalizado",
+  "patientDni": 43521064,
+  "vaccine": "Covid",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1652587200000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Polideportivo",
+  "__v": 0,
+  "lot": "A24",
+  "mark": "VACC"
+},{
+  "_id": {
+    "$oid": "62b0dfc6c559d7ad6c8cd156"
+  },
+  "state": "Activo",
+  "patientDni": 53521062,
+  "vaccine": "Gripe",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1671508800000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Polideportivo",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b0e02fc559d7ad6c8cd16d"
+  },
+  "state": "Activo",
+  "patientDni": 43521066,
+  "vaccine": "Gripe",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1671249600000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655748677446"
+    }
+  },
+  "vaccinationCenter": "Hospital 9 de Julio",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "62b1fc21b27416ee4dd7665a"
+  },
+  "state": "Finalizado",
+  "patientDni": 13521062,
+  "vaccine": "Covid",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1655784000000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655831560657"
+    }
+  },
+  "vaccinationCenter": "Corralón municipal",
+  "__v": 0,
+  "lot": "A24",
+  "mark": "VACC"
+},{
+  "_id": {
+    "$oid": "62b20adde4b6d4fc013ca3fb"
+  },
+  "state": "Finalizado",
+  "patientDni": 13521062,
+  "vaccine": "Covid",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1655784000000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655835357834"
+    }
+  },
+  "vaccinationCenter": "Corralón municipal",
+  "__v": 0,
+  "lot": "A24",
+  "mark": "VACC"
+},{
+  "_id": {
+    "$oid": "62b20af3e4b6d4fc013ca40c"
+  },
+  "state": "Activo",
+  "patientDni": 13521062,
+  "vaccine": "Covid",
+  "vaccinationDate": {
+    "$date": {
+      "$numberLong": "1657512000000"
+    }
+  },
+  "issueDate": {
+    "$date": {
+      "$numberLong": "1655835379741"
+    }
+  },
+  "vaccinationCenter": "Corralón municipal",
+  "__v": 0
+}]

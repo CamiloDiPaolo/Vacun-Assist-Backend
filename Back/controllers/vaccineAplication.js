@@ -119,9 +119,9 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
 });
 
 exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
-  if (!availability(req.body.vaccine))
+  console.log("LOCALIZAME LA APLICACION");
+  if (!(await availability(req.body.vaccine, req.user.vaccinationCenter)))
     return next(new AppError("No hay disponibilidad para esta vacuna 😥", 403));
-
   const patient = await User.findOne({ dni: req.body.dni });
   if (!req.body.birthday) {
     return next(new AppError("falto ingresar el cumple", 404));
@@ -181,13 +181,20 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   });
 });
 
-const availability = (vaccine) => {
-  try{
-    const stock = await Stock.findOne({vaccinationCenter: req.user.vaccinationCenter, vaccine: vaccine})
-  
+const availability = async (vaccine, vaccinationCenter) => {
+  try {
+    const stock = await Stock.findOne({
+      vaccinationCenter: vaccinationCenter,
+      vaccine: vaccine,
+    });
+
+    await Stock.findByIdAndUpdate(stock._id, {
+      cant: stock.cant == 0 ? 0 : stock.cant - 1,
+    });
+
     return stock.cant > 0;
-  }catch(){
-    return false
+  } catch (err) {
+    return false;
   }
 };
 
