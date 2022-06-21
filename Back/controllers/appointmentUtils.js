@@ -194,6 +194,7 @@ exports.modifyActiveAppointments = async (dni, vaccine, date) => {
     vaccine: vaccine,
     patientDni: dni,
   });
+  date.setHours(25);
 
   if (vaccine === "Covid") date.setUTCMonth(date.getMonth() + 3);
   else date.setFullYear(date.getFullYear() + 1);
@@ -211,7 +212,7 @@ exports.modifyActiveAppointments = async (dni, vaccine, date) => {
 exports.getCurrentDate = () => {
   const currentDate = new Date();
 
-  currentDate.setHours(0);
+  currentDate.setHours(1);
   currentDate.setMinutes(0);
   currentDate.setSeconds(0);
   currentDate.setMilliseconds(0);

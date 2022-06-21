@@ -39,6 +39,11 @@ exports.vaccineAplication = catchAsync(async (req, res, next) => {
 
   const newAppointment = await Appointment.create(req.body);
 
+  newAppointment.vaccinationDate.setHours(25);
+  await Appointment.findByIdAndUpdate(newAppointment._id, {
+    vaccinationDate: newAppointment.vaccinationDate,
+  });
+
   res.status(201).json({
     status: "success",
     data: newAppointment,
@@ -50,7 +55,7 @@ const isModificable = async (dni, vaccine, vaccineDate) => {
     dni,
     vaccine
   );
-
+  if (!activeAppointment) return false;
   const diffTime =
     activeAppointment.vaccinationDate.getTime() - vaccineDate.getTime();
 
@@ -208,6 +213,7 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
     !(await appointmentUtils.hasActiveAppointment(dni, vaccine))
   )
     return "El usuario tiene que esperar mínimo 3 meses desde su ultima aplicación para vacunarse nuevamente 😅";
+  console.log(await appointmentUtils.lastAppointmentMonth(dni, vaccine));
   if (
     vaccine == "Covid" &&
     (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) < 3 &&

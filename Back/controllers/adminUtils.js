@@ -56,31 +56,31 @@ exports.getStats = catchAsync(async (req, res, next) => {
     (appointment) => appointment.state !== "Pendiente"
   );
   const daysStats = {
-    Monday: allAppointmentsWithoutPendientes.filter(
+    Lunes: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Mon"
     ).length,
-    Tuesday: allAppointmentsWithoutPendientes.filter(
+    Martes: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Tue"
     ).length,
-    Wednesday: allAppointmentsWithoutPendientes.filter(
+    Miercoles: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Wed"
     ).length,
-    Thursday: allAppointmentsWithoutPendientes.filter(
+    Jueves: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Thu"
     ).length,
-    Friday: allAppointmentsWithoutPendientes.filter(
+    Viernes: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Fri"
     ).length,
-    Saturday: allAppointmentsWithoutPendientes.filter(
+    Sabado: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Sat"
     ).length,
-    Sunday: allAppointmentsWithoutPendientes.filter(
+    Domingo: allAppointmentsWithoutPendientes.filter(
       (appointment) =>
         appointment.vaccinationDate.toString().split(" ")[0] == "Sun"
     ).length,
