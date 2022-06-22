@@ -6,6 +6,7 @@ const AppError = require("../utils/appError");
 const authController = require("./authController");
 const userController = require("./userController");
 const sendMail = require("../utils/email");
+const cathAsync = require("../utils/cathAsync");
 
 exports.getStats = catchAsync(async (req, res, next) => {
   let allAppointments = await Appointment.find();
@@ -129,12 +130,23 @@ exports.subStock = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getStock = cathAsync(async (req, res, next) => {
+  const stock = await Stock.findOne({
+    vaccine: req.body.vaccine,
+    vaccinationCenter: req.body.vaccinationCenter,
+  });
+  res.status(200).json({
+    status: "success",
+    data: stock,
+  });
+});
+
 exports.signupVacc = catchAsync(async (req, res, next) => {
   // comprobamso que se ingresen todos los datos
   if (!req.body.dni || !req.body.email)
     return next(new AppError("Por favor ingresa todos los datos", 400));
   // verificamos que no exista alguien conese dni
-  const user = await User.find({ dni: req.body.dni });
+  const user = await User.find({ dni: req.body.dni, rol: "vacc" });
   if (user.length)
     return next(new AppError("El DNI ingresado ya está registrado.", 400));
 

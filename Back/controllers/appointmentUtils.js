@@ -47,6 +47,8 @@ exports.hasActiveAppointment = async (dni, vac) => {
     vaccine: vac,
     patientDni: dni,
   });
+  console.log("Todos los turnos Activos");
+  console.log(allAppointment);
 
   return allAppointment.length;
 };
@@ -78,6 +80,8 @@ exports.lastAppointmentMonth = async (dni, vac) => {
     vaccine: vac,
     patientDni: dni,
   });
+  console.log("Todos los turnos Finalizados");
+  console.log(allAppointment);
 
   if (allAppointment.length === 0) return null;
 

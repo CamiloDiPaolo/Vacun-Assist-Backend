@@ -90,6 +90,7 @@ const isCancelable = async (dni, vaccine) => {
 };
 
 exports.searchAppointments = catchAsync(async (req, res, next) => {
+  console.log("MOMENTO BUSCAR");
   const patient = await User.findOne({ dni: req.params.dni });
 
   // si el dni esta registrado devolvemos sus turnos
@@ -109,6 +110,7 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
     });
   }
 
+  console.log("Buscar en el Renaper");
   // si el dni no esta registrado  validamos con el renaper
   const user = await userController.userRenaperNoValid({ dni: req.params.dni });
 
@@ -120,8 +122,6 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
 
 exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   console.log("LOCALIZAME LA APLICACION");
-  if (!(await availability(req.body.vaccine, req.user.vaccinationCenter)))
-    return next(new AppError("No hay disponibilidad para esta vacuna 😥", 403));
   const patient = await User.findOne({ dni: req.body.dni });
   if (!req.body.birthday) {
     return next(new AppError("falto ingresar el cumple", 404));
@@ -129,14 +129,17 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   if (!req.body.email) {
     return next(new AppError("falto ingresar el mail", 404));
   }
-
   // si el usuario ya esta vacunado contra esa vacuna no se permite sacar el turno
   const err = await appointmentValidation(
     req.body.dni,
     req.body.vaccine,
     req.body.birthday
   );
+  console.log("Error");
+  console.log(err);
   if (err) return next(new AppError(err, 500));
+  if (!(await availability(req.body.vaccine, req.user.vaccinationCenter)))
+    return next(new AppError("No hay disponibilidad para esta vacuna 😥", 403));
 
   const newAppointments = await appointmentController.createAppointmentLocal({
     vaccine: req.body.vaccine,
@@ -227,11 +230,11 @@ const appointmentValidation = async (dni, vaccine, birthday) => {
     !(await appointmentUtils.hasActiveAppointment(dni, vaccine))
   )
     return "El usuario tiene que esperar mínimo 3 meses desde su ultima aplicación para vacunarse nuevamente 😅";
+  console.log("Diferencia de Meses");
   console.log(await appointmentUtils.lastAppointmentMonth(dni, vaccine));
   if (
     vaccine == "Covid" &&
     (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) < 3 &&
-    (await appointmentUtils.lastAppointmentMonth(dni, vaccine)) != null &&
     (await appointmentUtils.hasActiveAppointment(dni, vaccine))
   )
     return "Ya tenes un turno contra esta vacuna o tenes un turno en espera 😅";
