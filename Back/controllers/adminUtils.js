@@ -168,6 +168,10 @@ exports.signupVacc = catchAsync(async (req, res, next) => {
   });
 
   const dataNewUser = await userController.userRenaperNoValid(req.body);
+
+  const userNoVacc = await User.findOne({ dni: req.body.dni });
+  if (userNoVacc) await User.findByIdAndDelete(userNoVacc._id);
+
   const newUser = await User.create(dataNewUser);
 
   res.status(201).json({
