@@ -188,6 +188,53 @@ exports.getUserRenaper = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
+  // recibe una vacuna y una cantidad de turnos a asignar
+  if (!req.body.vaccine || !req.body.cant)
+    return next(
+      new AppError("No ingresaste la vacuna o la cantidad de turnos", 400)
+    );
+
+  // obtenemos todos los turnos y ordenamos por fecha
+  const allAppointments = await Appointment.find({
+    vaccine: req.body.vaccine,
+    state: "Pendiente",
+  });
+
+  allAppointments.sort((app1, app2) => {
+    return (
+      new Date(app2.vaccinationDate).getTime() -
+      new Date(app1.vaccinationDate).getTime()
+    );
+  });
+
+  // actualizamos los turnos pendientes
+  const newDate = new Date();
+
+  newDate.setHours(1);
+  newDate.setMinutes(0);
+  newDate.setSeconds(0);
+  newDate.setMilliseconds(0);
+  newDate.setUTCDate(newDate.getDate() + 7);
+
+  const newAppointments = allAppointments.slice(0, req.body.cant);
+
+  // actualizamos todos los turnos pendientes
+  await Promise.all(
+    newAppointments.map(async (appointment, i) => {
+      if (i === req.body.cant) return;
+      return await Appointment.findByIdAndUpdate(appointment._id, {
+        vaccinationDate: newDate,
+        state: "Activo",
+      });
+    })
+  );
+  res.status(200).json({
+    status: "success",
+    data: allAppointments.slice(0, req.body.cant),
+  });
+});
+
 const randomPassword = () => {
   // hay que mejorar esto
   return "12345678";

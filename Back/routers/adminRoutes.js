@@ -36,4 +36,12 @@ adminRouter
     adminUtils.getStats
   );
 
+adminRouter
+  .route("/assing-pending-appointments")
+  .post(
+    authController.protect,
+    authController.restrictTo("admin"),
+    adminUtils.assingPendingAppointments
+  );
+
 module.exports = adminRouter;
