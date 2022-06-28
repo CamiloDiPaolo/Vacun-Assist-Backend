@@ -37,6 +37,7 @@ const appointmentSchema = mongoose.Schema({
   },
   lot: String,
   mark: String,
+  vaccunator: String,
 });
 
 const Appointment = mongoose.model("appointments", appointmentSchema);

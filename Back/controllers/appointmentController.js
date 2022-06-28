@@ -264,6 +264,7 @@ exports.validateAppointment = catchAsync(async (req, res, next) => {
   appointment.state = req.body.state;
   appointment.lot = req.body.lot;
   appointment.mark = req.body.mark;
+  appointment.vaccunator = req.user.fullName;
 
   await Appointment.findByIdAndUpdate(appointment.id, appointment);
 

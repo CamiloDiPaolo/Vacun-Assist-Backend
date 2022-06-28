@@ -147,6 +147,7 @@ exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
     lot: req.body.lot,
     mark: req.body.mark,
     patientDni: req.body.dni,
+    vaccunator: req.user.fullName,
   });
 
   // si ya esta registrado el paciente solo devolvemos los turnos nuevos
