@@ -190,7 +190,7 @@ exports.getUserRenaper = catchAsync(async (req, res, next) => {
 
 exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
   // recibe una vacuna y una cantidad de turnos a asignar
-  if (!req.body.vaccine || !req.body.cant)
+  if (!req.body.vaccine || !req.body.cant || !req.body.date)
     return next(
       new AppError("No ingresaste la vacuna o la cantidad de turnos", 400)
     );
@@ -209,13 +209,27 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
   });
 
   // actualizamos los turnos pendientes
-  const newDate = new Date();
+  const newDate = new Date(req.body.date);
+  const currentDate = new Date();
 
   newDate.setHours(1);
   newDate.setMinutes(0);
   newDate.setSeconds(0);
   newDate.setMilliseconds(0);
-  newDate.setUTCDate(newDate.getDate() + 7);
+
+  currentDate.setHours(1);
+  currentDate.setMinutes(0);
+  currentDate.setSeconds(0);
+  currentDate.setMilliseconds(0);
+
+  //si la fecha que se selecciono es menor a 7 dias da error
+  if (newDate.getTime() - currentDate.getTime() < 1000 * 60 * 60 * 24 * 7)
+    return next(
+      new AppError(
+        "Los turnos solo pueden ser habilitados para dentro de 7 días en adelante 😓",
+        400
+      )
+    );
 
   const newAppointments = allAppointments.slice(0, req.body.cant);
 
