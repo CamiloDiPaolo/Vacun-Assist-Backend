@@ -36,6 +36,8 @@ bot.command("login", (ctx) => {
           usr = res;
           message = `Bienvenido ${usr.fullName}`;
         } else {
+          DNI = "";
+          code = "";
           message = `Los datos ingresados son incorrectos`;
         }
       });
@@ -68,6 +70,7 @@ bot.command("logout", (ctx) => {
     DNI = "";
     code = "";
     usr = "";
+    ctx.reply("Cerraste Sesion!");
   } else
     ctx.reply(`No tenes ninguna sesion iniciada
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
@@ -122,8 +125,9 @@ bot.command("noticias", (ctx) => {
 });
 
 bot.command("datos", (ctx) => {
+  let message = "";
   if (usr) {
-    let message = `Tus Datos almacenados son:
+    message = `Tus Datos almacenados son:
 Nombre Completo: ${usr.fullName}
 DNI: ${usr.dni}
 CUIL: ${usr.cuil}
@@ -134,7 +138,7 @@ Persona de Riesgo: ${usr.isRisk ? "SI" : "NO"}
     message = `Debe Iniciar Sesion para utilizar este comando
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
 -Ingrese /help para consultar todos los comandos disponibles`;
-  console.log(usr);
+  ctx.reply(message);
 });
 
 const getUser = async (dni) => {
