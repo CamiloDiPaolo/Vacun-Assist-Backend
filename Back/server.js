@@ -10,7 +10,6 @@ const userRouter = require("./routers/userRoutes");
 const appointmentRouter = require("./routers/appointmentRoutes");
 const adminRouter = require("./routers/adminRoutes");
 const { PORT, ALLOWED_ACCES_URL } = require("./config");
-
 const Appointment = require("./models/appointmentModel");
 
 // creamos la app express
