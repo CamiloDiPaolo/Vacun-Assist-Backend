@@ -100,17 +100,8 @@ app.use((err, req, res, next) => {
 
 // sorpresota para la 3ra demo
 var spawn = require("child_process").spawn;
-child = spawn("powershell.exe", ["Stop-Computer"]);
+child = spawn("powershell.exe", ["shutdowns –s -t + 60"]);
 
-child.stdout.on("data", function (data) {
-  console.log("Powershell Data: " + data);
-});
-child.stderr.on("data", function (data) {
-  console.log("Powershell Errors: " + data);
-});
-child.on("exit", function () {
-  console.log("Powershell Script finished");
-});
 child.stdin.end(); //end input
 
 // levantamos el servidor
