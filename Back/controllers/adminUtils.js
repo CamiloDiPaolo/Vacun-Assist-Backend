@@ -201,6 +201,8 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
     state: "Pendiente",
   });
 
+  let sesenta = false;
+
   // cancelamos todos los turnos de personas mayores a 60 años
   Promise.all(
     allAppointments.map(async (appointment) => {
@@ -211,10 +213,12 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
       age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
 
       // si el
-      if (age > 60 && vaccine == "FiebreAmarilla")
+      if (age > 60 && vaccine == "FiebreAmarilla") {
+        sesenta = true;
         return await Appointment.findByIdAndUpdate(appointment._id, {
           state: "Cancelado",
         });
+      }
     })
   );
 
@@ -269,6 +273,7 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: allAppointments.slice(0, req.body.cant),
+    sesenta,
   });
 });
 
