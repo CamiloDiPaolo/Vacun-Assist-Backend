@@ -156,12 +156,11 @@ exports.appointmentValidation = async (dni, vaccine, birthday) => {
     (await hasAppointment(dni, vaccine)) >= MAX_COVID_DOSIS
   )
     return `No podes darte mas de ${MAX_COVID_DOSIS} vacunas contra el Covid 😅`;
-  if (vaccine == "FiebreAmarilla" && (await hasAppointment(dni, vaccine)) > 0)
-    return `No podes darte mas de 1 dosis contra la Fiebre Amarilla 😅`;
-
   // si ya tiene un turno o se vacuno contra la vacuna
   if (await hasActiveAppointment(dni, vaccine))
     return "Ya tenes un turno contra esta vacuna o tenes un turno en espera 😅";
+  if (vaccine == "FiebreAmarilla" && (await hasAppointment(dni, vaccine)) > 0)
+    return `No podes darte mas de 1 dosis contra la Fiebre Amarilla 😅`;
 
   // comprobamos los temas de la edad
   if (age < 18 && vaccine == "Covid")
