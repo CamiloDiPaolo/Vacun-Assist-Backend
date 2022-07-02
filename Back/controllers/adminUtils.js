@@ -196,7 +196,35 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
     );
 
   // obtenemos todos los turnos y ordenamos por fecha
-  const allAppointments = await Appointment.find({
+  let allAppointments = await Appointment.find({
+    vaccine: req.body.vaccine,
+    state: "Pendiente",
+  });
+
+  let sesenta = false;
+  console.log(allAppointments);
+  // cancelamos todos los turnos de personas mayores a 60 años
+  await Promise.all(
+    allAppointments.map(async (appointment) => {
+      const user = await User.findOne({ dni: appointment.patientDni });
+      const birthdayDate = new Date(user.birthday);
+      const currentDate = new Date();
+      let age = currentDate.getFullYear() - birthdayDate.getFullYear();
+      age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
+      console.log(age);
+      // si el
+      if (age > 60 && req.body.vaccine == "FiebreAmarilla") {
+        sesenta = true;
+        return await Appointment.findByIdAndUpdate(appointment._id, {
+          state: "Cancelado",
+        });
+      }
+    })
+  );
+  console.log(allAppointments);
+
+  // nos quedamos con los turnos pendientes
+  allAppointments = await Appointment.find({
     vaccine: req.body.vaccine,
     state: "Pendiente",
   });
@@ -246,6 +274,7 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: allAppointments.slice(0, req.body.cant),
+    sesenta,
   });
 });
 
