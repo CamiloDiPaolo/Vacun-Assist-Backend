@@ -48,8 +48,9 @@ Hay turnos activos dentro de 7 Dias o menos: `;
           res.forEach((appointment) => {
             const date = getFullDate(appointment.vaccinationDate);
             message = `${message}
-        Estado: ${appointment.state}
+        Estado: ${appointment.state === "Activo" ? "pendiente ⌛" : ""}
         Vacuna: ${appointment.vaccine}
+        Vacunatorio: ${appointment.vaccinationCenter}
         Dia: ${date}
 -------------------------------------------------------------------`;
           });
@@ -87,8 +88,19 @@ bot.command("turnos", (ctx) => {
           ? getFullDate(appointment.vaccinationDate)
           : "A confirmar";
         message = `${message}
-        Estado: ${appointment.state}
+        Estado: ${
+          appointment.vaccinationCenter === "Externo"
+            ? "Ingresado por usuario 👍"
+            : appointment.state === "Finalizado"
+            ? "concretado ✅"
+            : appointment.state === "Activo"
+            ? "pendiente ⌛"
+            : appointment.state === "Pendiente"
+            ? "En espera ⛔"
+            : "cancelado ❌"
+        }
         Vacuna: ${appointment.vaccine}
+        Vacunatorio: ${appointment.vaccinationCenter}
         Dia: ${date}
 -------------------------------------------------------------------`;
       });
@@ -110,9 +122,10 @@ bot.command("noticias", (ctx) => {
         res.forEach((appointment) => {
           const date = getFullDate(appointment.vaccinationDate);
           message = `${message}
-      Estado: ${appointment.state}
-      Vacuna: ${appointment.vaccine}
-      Dia: ${date}
+        Estado: ${appointment.state === "Activo" ? "pendiente ⌛" : ""}
+        Vacuna: ${appointment.vaccine}
+        Vacunatorio: ${appointment.vaccinationCenter}
+        Dia: ${date}
 -------------------------------------------------------------------`;
         });
       }
