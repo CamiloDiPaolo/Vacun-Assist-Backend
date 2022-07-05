@@ -2,6 +2,7 @@ const Appointment = require("../models/appointmentModel");
 const catchAsync = require("../utils/cathAsync");
 const AppError = require("../utils/appError");
 const appointmentUtils = require("./appointmentUtils");
+const Stock = require("../models/stockModel");
 
 const MAX_COVID_DOSIS = 4;
 
@@ -334,6 +335,15 @@ exports.cancelAppointment = catchAsync(async (req, res, next) => {
   appointment.vaccinationDate = "Cancelado";
 
   await Appointment.findByIdAndUpdate(appointment.id, appointment);
+
+  const stock = await Stock.findOne({
+    vaccine: appointment.vaccine,
+    vaccinationCenter: appointment.vaccinationCenter,
+  });
+
+  await Stock.findByIdAndUpdate(stock._id, {
+    cant: stock.cant + 1,
+  });
 
   res.status(200).json({
     status: "success",

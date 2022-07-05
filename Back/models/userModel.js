@@ -82,6 +82,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     required: [true, "Una persona tiene que haber nacido... no?"],
   },
+  notify: {
+    type: String,
+    enum: ["mail", "telegram", "all"],
+    default: "mail",
+  },
 });
 
 const User = mongoose.model("users", userSchema);

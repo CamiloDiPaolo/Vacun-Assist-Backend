@@ -12,6 +12,8 @@ const adminRouter = require("./routers/adminRoutes");
 const { PORT, ALLOWED_ACCES_URL } = require("./config");
 const Appointment = require("./models/appointmentModel");
 const telegramBot = require("./utils/telegramBot");
+const sendMail = require("../utils/email");
+const User = require("./models/userModel");
 
 // creamos la app express
 const app = express();
@@ -57,6 +59,32 @@ app.use((req, res, next) => {
         state: "Perdido",
       });
     }
+  });
+})();
+
+// middleware para enviar notificaciones por mail
+// middleware que se encarga de actualizar los turnos perdidos
+(async () => {
+  const allAppointments = await Appointment.find({});
+  const currentDate = new Date();
+
+  currentDate.setHours(0);
+  currentDate.setMinutes(0);
+  currentDate.setSeconds(0);
+  currentDate.setMilliseconds(0);
+
+  allAppointments.forEach(async (appointment) => {
+    const date = new Date(appointment.vaccinationDate);
+    const diff = (currentDate.getTime() - date.getTime()) * 60 * 60 * 24;
+
+    if (diff > 1) return;
+
+    const user = await User.findOne({ dni: appointment.patientDni });
+    // enviamos el token por mail
+    sendMail({
+      message: `Tenes un turno para la vacuna contra ${appointment.vaccine} mañana en el vacunatorio ${appointment.vaccinationCenter}`,
+      email: user.email,
+    });
   });
 })();
 
