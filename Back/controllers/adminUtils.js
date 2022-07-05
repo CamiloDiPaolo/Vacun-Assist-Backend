@@ -206,7 +206,7 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
   // cancelamos todos los turnos de personas mayores a 60 años
   Promise.all(
     allAppointments.map(async (appointment) => {
-      const user = await User.find({ dni: appointment.patientDni });
+      const user = await User.findOne({ dni: appointment.patientDni });
       const birthdayDate = new Date(user.birthday);
       const currentDate = new Date();
       let age = currentDate.getFullYear() - birthdayDate.getFullYear();
