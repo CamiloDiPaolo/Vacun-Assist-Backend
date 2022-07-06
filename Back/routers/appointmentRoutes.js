@@ -62,10 +62,11 @@ appointmentRouter
     adminUtils.getStats
   );
 
-// sacar turno local
-
-// finalizar turno (recibe id de turno)
-
-// obtener todos los turnos
-
+appointmentRouter
+  .route("/get-pendings")
+  .get(
+    authController.protect,
+    authController.restrictTo("admin"),
+    appointmentController.getPendingsAppointments
+  );
 module.exports = appointmentRouter;

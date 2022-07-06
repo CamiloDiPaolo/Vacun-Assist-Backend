@@ -352,3 +352,13 @@ exports.cancelAppointment = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getPendingsAppointments = catchAsync(async (req, res, next) => {
+  const allAppointments = await Appointment.find({ state: "Pendiente" });
+  res.status(200).json({
+    status: "success",
+    data: {
+      allAppointments,
+    },
+  });
+});
