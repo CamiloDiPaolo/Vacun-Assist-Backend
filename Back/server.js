@@ -51,9 +51,10 @@ app.use((req, res, next) => {
   currentDate.setMilliseconds(0);
 
   allAppointments.forEach(async (appointment) => {
+    const appointmentDate = new Date(appointment.vaccinationDate);
     if (
       appointment.state == "Activo" &&
-      appointment.vaccinationDate.getTime() < currentDate.getTime()
+      appointmentDate.getTime() < currentDate.getTime()
     ) {
       await Appointment.findByIdAndUpdate(appointment._id, {
         state: "Perdido",
@@ -68,7 +69,7 @@ app.use((req, res, next) => {
 setInterval(async () => {
   const hour = new Date().getHours();
   console.log(hour);
-  if (hour != 11) return;
+  // if (hour != 11) return;
   const allAppointments = await Appointment.find({});
   const currentDate = new Date();
 
@@ -80,12 +81,12 @@ setInterval(async () => {
   allAppointments.forEach(async (appointment) => {
     //Areglar el diff, devuelve valores raros
     const date = new Date(appointment.vaccinationDate);
-    const diff = Math.trunc(
-      (date.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    if (diff != 1) return;
-    const user = await User.findOne({ dni: appointment.patientDni });
+    const diff =
+      (date.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
 
+    if (diff > 1 && diff < 0) return;
+
+    const user = await User.findOne({ dni: appointment.patientDni + "" });
     // enviamos el token por mail
     sendMail({
       message: `Tenes un turno para la vacuna contra ${appointment.vaccine} mañana en el vacunatorio ${appointment.vaccinationCenter}`,
