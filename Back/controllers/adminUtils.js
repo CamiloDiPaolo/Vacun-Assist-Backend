@@ -209,11 +209,17 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
       const user = await User.findOne({ dni: appointment.patientDni });
       const birthdayDate = new Date(user.birthday);
       const currentDate = new Date();
-      let age = currentDate.getFullYear() - birthdayDate.getFullYear();
-      age = birthdayDate.getMonth() < currentDate.getMonth() ? age : age - 1;
-      console.log(age);
-      // si el
-      if (age > 60 && req.body.vaccine == "FiebreAmarilla") {
+
+      // difrencia de edad en dias
+      let diff =
+        (currentDate.getTime() - birthdayDate.getTime()) /
+        (1000 * 60 * 60 * 24);
+      // sumamos 7 dias de diferencia
+      diff += 7;
+      // pasamos la diferencia a años
+      diff = diff / 365;
+
+      if (diff >= 60 && req.body.vaccine == "FiebreAmarilla") {
         sesenta = true;
         return await Appointment.findByIdAndUpdate(appointment._id, {
           state: "Cancelado",
@@ -221,6 +227,7 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
       }
     })
   );
+  return next(new AppError("Hola", 400));
   console.log(allAppointments);
 
   // nos quedamos con los turnos pendientes
@@ -275,6 +282,7 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
     status: "success",
     data: allAppointments.slice(0, req.body.cant),
     sesenta,
+    cant: allAppointments.slice(0, req.body.cant).length,
   });
 });
 

@@ -64,7 +64,11 @@ app.use((req, res, next) => {
 
 // middleware para enviar notificaciones por mail
 // middleware que se encarga de actualizar los turnos perdidos
-(async () => {
+// el intervalo para notificar se ejecuta  cada dia a las 11hs(actualmente esta configurado cada 10min)
+setInterval(async () => {
+  const hour = new Date().getHours();
+  console.log(hour);
+  if (hour != 11) return;
   const allAppointments = await Appointment.find({});
   const currentDate = new Date();
 
@@ -97,7 +101,7 @@ app.use((req, res, next) => {
       await sendTelegramMessage(telegramUser.telegramID, appointment);
     }
   });
-})();
+}, 1000 * 60 * 10);
 
 /////////////////////////////////////////////
 // nos conectamos con la base de datos
