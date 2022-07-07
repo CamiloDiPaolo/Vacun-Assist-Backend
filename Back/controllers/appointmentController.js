@@ -341,9 +341,16 @@ exports.cancelAppointment = catchAsync(async (req, res, next) => {
     vaccinationCenter: appointment.vaccinationCenter,
   });
 
-  await Stock.findByIdAndUpdate(stock._id, {
-    cant: stock.cant + 1,
-  });
+  const appointmentDate = new Date(appointment.vaccinationDate);
+  const currentDate = appointmentUtils.getCurrentDate();
+  const diffTime = appointmentDate.getTime() - currentDate.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  // si la diferencia de dias es menor o igual a 7 dias se suma uno al stock
+  if (diffDays <= 7) {
+    await Stock.findByIdAndUpdate(stock._id, {
+      cant: stock.cant + 1,
+    });
+  }
 
   res.status(200).json({
     status: "success",
