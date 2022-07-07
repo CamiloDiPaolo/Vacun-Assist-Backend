@@ -76,27 +76,26 @@ app.use((req, res, next) => {
   allAppointments.forEach(async (appointment) => {
     //Areglar el diff, devuelve valores raros
     const date = new Date(appointment.vaccinationDate);
-    const diff = (currentDate.getTime() - date.getTime()) * 60 * 60 * 24;
-
-    if (diff > 1) return;
-
+    const diff = Math.trunc(
+      (date.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    if (diff != 1) return;
     const user = await User.findOne({ dni: appointment.patientDni });
+
     // enviamos el token por mail
+    sendMail({
+      message: `Tenes un turno para la vacuna contra ${appointment.vaccine} mañana en el vacunatorio ${appointment.vaccinationCenter}`,
+      email: user.email,
+    });
 
-    // Arreglar: Tira error de demasiados mails por segundo
-    // sendMail({
-    //   message: `Tenes un turno para la vacuna contra ${appointment.vaccine} mañana en el vacunatorio ${appointment.vaccinationCenter}`,
-    //   email: user.email,
-    // });
-
-    // const telegramUser = await User.findOne({
-    //   dni: appointment.patientDni,
-    //   telegramSuscribe: true,
-    // });
-    // console.log(appointment);
-    // if (telegramUser && telegramUser.telegramID) {
-    //   await sendTelegramMessage(telegramUser.telegramID, appointment);
-    // }
+    // Enviamos un mensaje por telegram si esta suscrito
+    const telegramUser = await User.findOne({
+      dni: appointment.patientDni,
+      telegramSuscribe: true,
+    });
+    if (telegramUser && telegramUser.telegramID) {
+      await sendTelegramMessage(telegramUser.telegramID, appointment);
+    }
   });
 })();
 

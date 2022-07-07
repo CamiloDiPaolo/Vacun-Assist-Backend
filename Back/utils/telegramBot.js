@@ -33,7 +33,7 @@ bot.command("login", async (ctx) => {
       if (usr && usr.code === code) {
         message = `Bienvenido ${usr.fullName}`;
         logged = true;
-        usr = await updateTelegramID(usr, ctx.update.update_id);
+        usr = await updateTelegramID(usr, ctx.update.message.chat.id);
       } else {
         message = `Los datos ingresados son incorrectos`;
         usr = "";
