@@ -6,9 +6,7 @@ const User = require("./../models/userModel");
 
 const bot = new Telegraf(KEY_TELEGRAM_BOT);
 
-let DNI = "";
-let code = 0;
-let usr = "";
+let usr;
 
 bot.start((ctx) => {
   ctx.reply(`Bienvenido al bot de VacunAssist!
@@ -25,51 +23,49 @@ bot.help((ctx) => {
 -/datos Muestra tus datos guardados`);
 });
 
-bot.command("login", (ctx) => {
-  if (!DNI && !code) {
-    DNI = ctx.update.message.text.split(" ", 3)[1];
-    code = ctx.update.message.text.split(" ", 3)[2];
-    let message = "";
+bot.command("login", async (ctx) => {
+  const DNI = ctx.update.message.text.split(" ", 3)[1];
+  const code = ctx.update.message.text.split(" ", 3)[2];
+  let message = "";
+  if (!usr) {
     if (DNI && !isNaN(DNI)) {
-      getUser(DNI).then((res) => {
-        if (res && res.code === code) {
-          usr = res;
-          message = `Bienvenido ${usr.fullName}`;
-        } else {
-          DNI = "";
-          code = "";
-          message = `Los datos ingresados son incorrectos`;
-        }
-      });
-      getAppointmentToSevenDays(DNI).then((res) => {
-        if (res.length !== 0) {
-          message = `${message}
-Hay turnos activos dentro de 7 Dias o menos: `;
-          res.forEach((appointment) => {
-            const date = getFullDate(appointment.vaccinationDate);
-            message = `${message}
-        Estado: ${appointment.state === "Activo" ? "pendiente ⌛" : ""}
-        Vacuna: ${appointment.vaccine}
-        Vacunatorio: ${appointment.vaccinationCenter}
-        Dia: ${date}
--------------------------------------------------------------------`;
-          });
-        }
-        ctx.reply(message);
-      });
-    } else {
-      ctx.reply("Debe ingresar un DNI Valido");
-    }
+      usr = await getUser(DNI);
+      if (usr && usr.code === code) {
+        message = `Bienvenido ${usr.fullName}`;
+        logged = true;
+        usr = await updateTelegramID(usr, ctx.update.update_id);
+      } else {
+        message = `Los datos ingresados son incorrectos`;
+        usr = "";
+      }
+    } else message = "Debe Ingresar un DNI valido";
+    ctx.reply(message);
+    //     const appointments = await getAppointmentToSevenDays(DNI);
+    //     if (appointments.length !== 0) {
+    //       message = `${message}
+    // Hay turnos activos dentro de 7 Dias o menos: `;
+    //       res.forEach((appointment) => {
+    //         const date = getFullDate(appointment.vaccinationDate);
+    //         message = `${message}
+    //     Estado: ${appointment.state === "Activo" ? "pendiente ⌛" : ""}
+    //     Vacuna: ${appointment.vaccine}
+    //     Vacunatorio: ${appointment.vaccinationCenter}
+    //     Dia: ${date}
+    // -------------------------------------------------------------------`;
+    //       });
+    //       ctx.reply(message);
+    //     }
   } else
     ctx.reply(`Ya tenes una sesion iniciada!
 -Ingresa /logout para salir de la sesion actual!
 -Ingrese /help para consultar todos los comandos disponibles`);
 });
 
-bot.command("logout", (ctx) => {
-  if (DNI && code) {
-    DNI = "";
-    code = "";
+bot.command("logout", async (ctx) => {
+  if (usr) {
+    await User.findByIdAndUpdate(usr._id, {
+      telegramID: "",
+    });
     usr = "";
     ctx.reply("Cerraste Sesion!");
   } else
@@ -111,47 +107,6 @@ bot.command("turnos", (ctx) => {
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
 -Ingrese /help para consultar todos los comandos disponibles`);
   }
-});
-
-bot.command("noticias", (ctx) => {
-  if (usr) {
-    let message = "No hay turnos activos para dentro de 7 Dias o menos....";
-    getAppointmentToSevenDays(DNI).then((res) => {
-      if (res.length !== 0) {
-        message = `Hay turnos activos dentro de 7 Dias o menos: `;
-        res.forEach((appointment) => {
-          const date = getFullDate(appointment.vaccinationDate);
-          message = `${message}
-        Estado: ${appointment.state === "Activo" ? "pendiente ⌛" : ""}
-        Vacuna: ${appointment.vaccine}
-        Vacunatorio: ${appointment.vaccinationCenter}
-        Dia: ${date}
--------------------------------------------------------------------`;
-        });
-      }
-      ctx.reply(message);
-    });
-  } else
-    ctx.reply(`Debe Iniciar Sesion para utilizar este comando
--Ingrese /login seguido de su DNI y codigo para ingresar. 
--Ingrese /help para consultar todos los comandos disponibles`);
-});
-
-bot.command("datos", (ctx) => {
-  let message = "";
-  if (usr) {
-    message = `Tus Datos almacenados son:
-Nombre Completo: ${usr.fullName}
-DNI: ${usr.dni}
-CUIL: ${usr.cuil}
-Mail: ${usr.email}
-Persona de Riesgo: ${usr.isRisk ? "SI" : "NO"}
-`;
-  } else
-    message = `Debe Iniciar Sesion para utilizar este comando
--Ingrese /login seguido de su DNI y codigo para ingresar. 
--Ingrese /help para consultar todos los comandos disponibles`;
-  ctx.reply(message);
 });
 
 const getUser = async (dni) => {
@@ -216,5 +171,21 @@ const getFullDate = (vaccinationDate) => {
     } de ${date.getFullYear()} `;
   } else return undefined;
 };
+
+const updateTelegramID = async (usr, id) => {
+  const user = await User.findByIdAndUpdate(usr._id, {
+    telegramID: id,
+  });
+  return user;
+};
+
+const sendMessage = async (id, appointment) => {
+  bot.telegram.sendMessage(
+    id,
+    `Tenes un turno para la vacuna contra ${appointment.vaccine} mañana en el vacunatorio ${appointment.vaccinationCenter}`
+  );
+};
+
+module.exports = sendMessage;
 
 bot.launch();

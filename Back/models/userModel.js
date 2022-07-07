@@ -46,6 +46,9 @@ const userSchema = new mongoose.Schema({
   // },
   isRisk: { type: Boolean, default: false },
   updatedHealthData: { type: Boolean, default: false },
+
+  telegramID: { type: String, default: "" },
+  telegramSuscribe: { type: Boolean, default: false },
   //////////////////////////////////////////////////////////////////////////////
   // COSAS AGREGADAS POR LA API DE RENAPER
   fullName: {
