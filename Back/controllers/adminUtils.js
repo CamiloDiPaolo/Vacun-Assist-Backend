@@ -227,7 +227,6 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
       }
     })
   );
-  return next(new AppError("Hola", 400));
   console.log(allAppointments);
 
   // nos quedamos con los turnos pendientes
