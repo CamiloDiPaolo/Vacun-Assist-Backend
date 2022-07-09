@@ -348,7 +348,7 @@ exports.cancelAppointment = catchAsync(async (req, res, next) => {
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
   console.log("CANTIDAD DE DIAS: " + diffDays);
   // si la diferencia de dias es menor o igual a 7 dias se suma uno al stock
-  if (diffDays >= 7) {
+  if (diffDays <= 7) {
     await Stock.findByIdAndUpdate(stock._id, {
       cant: stock.cant + 1,
     });

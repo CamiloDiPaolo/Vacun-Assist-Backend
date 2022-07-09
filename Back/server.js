@@ -69,8 +69,8 @@ app.use((req, res, next) => {
 setInterval(async () => {
   const hour = new Date().getHours();
   console.log(hour);
-  // if (hour != 11) return;
-  const allAppointments = await Appointment.find({});
+  if (hour != 16) return;
+  const allAppointments = await Appointment.find({ state: "Activo" });
   const currentDate = new Date();
 
   currentDate.setHours(0);
@@ -84,7 +84,7 @@ setInterval(async () => {
     const diff =
       (date.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
 
-    if (diff > 1 && diff < 0) return;
+    if (Math.trunc(diff) > 1 || diff < 0) return;
 
     const user = await User.findOne({ dni: appointment.patientDni + "" });
     // enviamos el token por mail
@@ -102,7 +102,7 @@ setInterval(async () => {
       await sendTelegramMessage(telegramUser.telegramID, appointment);
     }
   });
-}, 1000 * 60 * 10);
+}, 1000 * 60 * 1);
 
 /////////////////////////////////////////////
 // nos conectamos con la base de datos

@@ -64,7 +64,7 @@ appointmentRouter
 
 appointmentRouter
   .route("/get-pendings")
-  .get(
+  .post(
     authController.protect,
     authController.restrictTo("admin"),
     appointmentController.getPendingsAppointments

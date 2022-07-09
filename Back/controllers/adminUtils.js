@@ -237,8 +237,7 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
 
   allAppointments.sort((app1, app2) => {
     return (
-      new Date(app2.vaccinationDate).getTime() -
-      new Date(app1.vaccinationDate).getTime()
+      new Date(app2.issueDate).getTime() - new Date(app1.issueDate).getTime()
     );
   });
 
