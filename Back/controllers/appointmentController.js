@@ -332,21 +332,23 @@ exports.cancelAppointment = catchAsync(async (req, res, next) => {
       new AppError("no podes cancelar un turno que no este activo..", 400)
     );
   appointment.state = "Cancelado";
+  const appointmentDate = new Date(appointment.vaccinationDate);
+
   appointment.vaccinationDate = "Cancelado";
 
   await Appointment.findByIdAndUpdate(appointment.id, appointment);
-
+  console.log("ANTES DEK STOCK");
   const stock = await Stock.findOne({
     vaccine: appointment.vaccine,
     vaccinationCenter: appointment.vaccinationCenter,
   });
-
-  const appointmentDate = new Date(appointment.vaccinationDate);
+  console.log("DESPUES DEL STOCK: " + stock);
   const currentDate = appointmentUtils.getCurrentDate();
   const diffTime = appointmentDate.getTime() - currentDate.getTime();
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  console.log("CANTIDAD DE DIAS: " + diffDays);
   // si la diferencia de dias es menor o igual a 7 dias se suma uno al stock
-  if (diffDays <= 7) {
+  if (diffDays >= 7) {
     await Stock.findByIdAndUpdate(stock._id, {
       cant: stock.cant + 1,
     });
