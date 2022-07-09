@@ -363,7 +363,10 @@ exports.cancelAppointment = catchAsync(async (req, res, next) => {
 });
 
 exports.getPendingsAppointments = catchAsync(async (req, res, next) => {
-  const allAppointments = await Appointment.find({ state: "Pendiente" });
+  const allAppointments = await Appointment.find({
+    state: "Pendiente",
+    vaccine: req.body.vaccine,
+  });
   res.status(200).json({
     status: "success",
     data: {
