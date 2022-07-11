@@ -16,8 +16,10 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.0",
     "morgan": "^1.10.0",
+    "node-calendar-js": "^1.0.3",
     "nodemailer": "^6.7.3",
     "promisify": "^0.0.3",
-    "telegraf": "^4.8.5"
+    "telegraf": "^4.8.5",
+    "telegraf-calendar-telegram": "^2.0.2"
   }
 }

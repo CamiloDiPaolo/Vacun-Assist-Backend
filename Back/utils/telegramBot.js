@@ -1,5 +1,12 @@
 const { Telegraf } = require("Telegraf");
 const { KEY_TELEGRAM_BOT, PORT } = require("./../config");
+const Calendar = require("telegraf-calendar-telegram");
+
+//Hacerlo con esto genera incostiencias cuando cambia la resolucion
+// const { Calendar } = require("node-calendar-js");
+
+// No se puede hacer con archivos ICS
+// const ics = require("ics");
 
 const Appointment = require("./../models/appointmentModel");
 const User = require("./../models/userModel");
@@ -7,6 +14,25 @@ const User = require("./../models/userModel");
 const bot = new Telegraf(KEY_TELEGRAM_BOT);
 
 let usr;
+
+const calendar = new Calendar(bot, {
+  startWeekDay: 1,
+  weekDayNames: ["Lun", "Mar", "Mier", "Jue", "Vie", "Sab", "Dom"],
+  monthNames: [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ],
+});
 
 bot.start((ctx) => {
   ctx.reply(`Bienvenido al bot de VacunAssist!
@@ -19,8 +45,8 @@ bot.help((ctx) => {
 -/login [DNI] [codigo] Iniciar sesion
 -/logout Cierra la sesion actual
 -/turnos Muestra todos tus turnos
--/noticias Muestra noticias relacionadas a tus turnos
--/datos Muestra tus datos guardados`);
+-/suscribirse Permite el envio de Notificaciones via Telegram
+-/desuscribirse Anula el envio de Notificaciones via Telegram`);
 });
 
 bot.command("login", async (ctx) => {
@@ -40,21 +66,6 @@ bot.command("login", async (ctx) => {
       }
     } else message = "Debe Ingresar un DNI valido";
     ctx.reply(message);
-    //     const appointments = await getAppointmentToSevenDays(DNI);
-    //     if (appointments.length !== 0) {
-    //       message = `${message}
-    // Hay turnos activos dentro de 7 Dias o menos: `;
-    //       res.forEach((appointment) => {
-    //         const date = getFullDate(appointment.vaccinationDate);
-    //         message = `${message}
-    //     Estado: ${appointment.state === "Activo" ? "pendiente ⌛" : ""}
-    //     Vacuna: ${appointment.vaccine}
-    //     Vacunatorio: ${appointment.vaccinationCenter}
-    //     Dia: ${date}
-    // -------------------------------------------------------------------`;
-    //       });
-    //       ctx.reply(message);
-    //     }
   } else
     ctx.reply(`Ya tenes una sesion iniciada!
 -Ingresa /logout para salir de la sesion actual!
@@ -67,46 +78,136 @@ bot.command("logout", async (ctx) => {
       telegramID: "",
     });
     usr = "";
-    ctx.reply("Cerraste Sesion!");
+    ctx.reply("Cerraste sesión!");
   } else
     ctx.reply(`No tenes ninguna sesion iniciada
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
 -Ingrese /help para consultar todos los comandos disponibles`);
 });
 
-bot.command("turnos", (ctx) => {
+bot.command("turnos", async (ctx) => {
   if (usr) {
-    let message =
-      "------------------------ Tus Turnos ------------------------";
-    getAllApointments(usr.dni).then((res) => {
-      res.forEach((appointment) => {
-        const date = appointment.vaccinationDate
-          ? getFullDate(appointment.vaccinationDate)
-          : "A confirmar";
-        message = `${message}
-        Estado: ${
-          appointment.vaccinationCenter === "Externo"
-            ? "Ingresado por usuario 👍"
-            : appointment.state === "Finalizado"
-            ? "concretado ✅"
-            : appointment.state === "Activo"
-            ? "pendiente ⌛"
-            : appointment.state === "Pendiente"
-            ? "En espera ⛔"
-            : "cancelado ❌"
+    const appointment = await getAllApointments(usr.dni);
+    if (appointment.length == 0) ctx.reply("Aún no tenes turnos vinculados.");
+    const { max, min } = MaxMinDate(appointment);
+    max.setDate(31);
+    min.setDate(1);
+    calendar.setMinDate(min).setMaxDate(max);
+
+    calendar.setDateListener((context, date) => {
+      const notPendingAppointments = appointment.filter(
+        (app) => app.state !== "Pendiente"
+      );
+      notPendingAppointments.map((app) => {
+        const stringDate = app.vaccinationDate.toISOString().split("T", 1)[0];
+        if (stringDate === date) {
+          let message = " Turno:  ";
+          const date = getFullDate(app.vaccinationDate);
+          message = `${message}
+            Estado: ${
+              app.vaccinationCenter === "Externo"
+                ? "Ingresado por usuario 👍"
+                : app.state === "Finalizado"
+                ? "concretado ✅"
+                : app.state === "Activo"
+                ? "pendiente ⌛"
+                : app.state === "Pendiente"
+                ? "En espera ⛔"
+                : "cancelado ❌"
+            }
+            Vacuna: ${app.vaccine}
+            Vacunatorio: ${app.vaccinationCenter}
+            Dia: ${date}`;
+          ctx.reply(message);
         }
-        Vacuna: ${appointment.vaccine}
-        Vacunatorio: ${appointment.vaccinationCenter}
-        Dia: ${date}
--------------------------------------------------------------------`;
       });
-      ctx.reply(message);
     });
+
+    let msg = await modifyMessage(appointment);
+    const newCalendar = await modifyCalendar(calendar.getCalendar());
+    msg = `Seleccione un simbolo para obtener mas informacion sobre el turno:
+👍: Turno ingresado por el usuario
+✅: Turno Finalizado
+❌: Turno Cancelado
+⌛: Turno Pendiente
+(Si tiene mas de un turno el mismo dia, se motraran todos los turnos)
+${msg}`;
+    ctx.reply(msg, newCalendar);
   } else {
     ctx.reply(`Debe Iniciar Sesion para utilizar este comando
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
 -Ingrese /help para consultar todos los comandos disponibles`);
   }
+});
+
+bot.command("suscribirse", async (ctx) => {
+  if (usr) {
+    await User.findByIdAndUpdate(usr._id, {
+      telegramSuscribe: true,
+    });
+    ctx.reply(
+      "Felicidades. Ahora recibiras notificaciones desde esta conversacion!! 🎊🎉🎉🎊"
+    );
+  } else {
+    ctx.reply(`Debe Iniciar Sesion para utilizar este comando
+-Ingrese /login seguido de su DNI y codigo para ingresar. 
+-Ingrese /help para consultar todos los comandos disponibles`);
+  }
+});
+
+bot.command("desuscribirse", async (ctx) => {
+  if (usr) {
+    await User.findByIdAndUpdate(usr._id, {
+      telegramSuscribe: false,
+    });
+    ctx.reply(
+      "Ya no recibiras mas notificaciones desde esta conversacion... Perdon por molestar 😥"
+    );
+  } else {
+    ctx.reply(`Debe Iniciar Sesion para utilizar este comando
+-Ingrese /login seguido de su DNI y codigo para ingresar. 
+-Ingrese /help para consultar todos los comandos disponibles`);
+  }
+});
+
+bot.action(/calendar-telegram-next-[\d-]+/g, async (context) => {
+  let dateString = context.match[0].replace("calendar-telegram-next-", "");
+  let date = new Date(dateString);
+  date.setMonth(date.getMonth() + 1);
+
+  let prevText = context.callbackQuery.message.text;
+
+  let prevEntities = context.callbackQuery.message.entities;
+  let extras = {
+    ...calendar.helper.getCalendarMarkup(date),
+    entities: prevEntities,
+  };
+  extras.reply_markup = (
+    await modifyCalendar(calendar.helper.getCalendarMarkup(date))
+  ).reply_markup;
+  return context
+    .answerCbQuery()
+    .then(() => context.editMessageText(prevText, extras));
+});
+
+bot.action(/calendar-telegram-prev-[\d-]+/g, async (context) => {
+  let dateString = context.match[0].replace("calendar-telegram-prev-", "");
+  let date = new Date(dateString);
+  date.setMonth(date.getMonth() - 1);
+
+  let prevText = context.callbackQuery.message.text;
+
+  let prevEntities = context.callbackQuery.message.entities;
+  let extras = {
+    ...calendar.helper.getCalendarMarkup(date),
+    entities: prevEntities,
+  };
+  extras.reply_markup = (
+    await modifyCalendar(calendar.helper.getCalendarMarkup(date))
+  ).reply_markup;
+  return context
+    .answerCbQuery()
+    .then(() => context.editMessageText(prevText, extras));
 });
 
 const getUser = async (dni) => {
@@ -186,6 +287,65 @@ const sendMessage = async (id, appointment) => {
   );
 };
 
-module.exports = sendMessage;
+const MaxMinDate = (appointments) => {
+  const notPending = appointments.filter((app) => app.state !== "Pendiente");
+  let max = new Date(notPending[0].vaccinationDate);
+  let min = new Date(notPending[0].vaccinationDate);
+  notPending.map((app) => {
+    const date = new Date(app.vaccinationDate);
+    max = Date.parse(date) > Date.parse(max) ? date : max;
+    min = Date.parse(date) < Date.parse(min) ? date : min;
+  });
+  return { max: max, min: min };
+};
+
+const modifyMessage = async (appointments) => {
+  let message = "Ademas, tenes Turnos en espera ⛔ para: ";
+  appointments.map((app) => {
+    if (app.state === "Pendiente") {
+      message += `
+* ${app.vaccine} `;
+    }
+  });
+  return message;
+};
+
+const modifyCalendar = async (calendar) => {
+  if (usr) {
+    const appointments = (await getAllApointments(usr.dni)).filter(
+      (app) => app.state !== "Pendiente"
+    );
+    appointments.map((app) => {
+      let aux;
+      const stringDate = app.vaccinationDate.toISOString().split("T", 1);
+      calendar.reply_markup.inline_keyboard.map((a) => {
+        const ab = a.findIndex(
+          (b) => b.callback_data === `calendar-telegram-date-${stringDate}`
+        );
+        if (ab !== -1) {
+          aux = ab;
+        }
+      });
+      calendar.reply_markup.inline_keyboard.map((a) => {
+        if (
+          a[aux] &&
+          a[aux].callback_data === `calendar-telegram-date-${stringDate}`
+        ) {
+          a[aux].text =
+            app.vaccinationCenter === "Externo"
+              ? "👍"
+              : app.state === "Finalizado"
+              ? "✅"
+              : app.state === "Cancelado"
+              ? "❌"
+              : "⌛";
+        }
+      });
+    });
+    return calendar;
+  }
+};
+
+module.exports = { sendMessage, modifyCalendar };
 
 bot.launch();

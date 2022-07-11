@@ -11,7 +11,7 @@ const appointmentRouter = require("./routers/appointmentRoutes");
 const adminRouter = require("./routers/adminRoutes");
 const { PORT, ALLOWED_ACCES_URL } = require("./config");
 const Appointment = require("./models/appointmentModel");
-const sendTelegramMessage = require("./utils/telegramBot");
+const { sendMessage: sendTelegramMessage } = require("./utils/telegramBot");
 const sendMail = require("./utils/email");
 const User = require("./models/userModel");
 
@@ -68,8 +68,7 @@ app.use((req, res, next) => {
 // el intervalo para notificar se ejecuta  cada dia a las 11hs(actualmente esta configurado cada 10min)
 setInterval(async () => {
   const hour = new Date().getHours();
-  console.log(hour);
-  if (hour != 16) return;
+  if (hour != 17) return;
   const allAppointments = await Appointment.find({ state: "Activo" });
   const currentDate = new Date();
 
@@ -79,7 +78,6 @@ setInterval(async () => {
   currentDate.setMilliseconds(0);
 
   allAppointments.forEach(async (appointment) => {
-    //Areglar el diff, devuelve valores raros
     const date = new Date(appointment.vaccinationDate);
     const diff =
       (date.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -87,6 +85,7 @@ setInterval(async () => {
     if (Math.trunc(diff) > 1 || diff < 0) return;
 
     const user = await User.findOne({ dni: appointment.patientDni + "" });
+
     // enviamos el token por mail
     sendMail({
       message: `Tenes un turno para la vacuna contra ${appointment.vaccine} mañana en el vacunatorio ${appointment.vaccinationCenter}`,
