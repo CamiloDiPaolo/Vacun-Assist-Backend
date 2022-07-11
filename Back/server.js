@@ -68,7 +68,7 @@ app.use((req, res, next) => {
 // el intervalo para notificar se ejecuta  cada dia a las 11hs(actualmente esta configurado cada 10min)
 setInterval(async () => {
   const hour = new Date().getHours();
-  if (hour != 17) return;
+  if (hour != 18) return;
   const allAppointments = await Appointment.find({ state: "Activo" });
   const currentDate = new Date();
 
@@ -101,7 +101,7 @@ setInterval(async () => {
       await sendTelegramMessage(telegramUser.telegramID, appointment);
     }
   });
-}, 1000 * 60 * 1);
+}, 1000 * 60 * 35);
 
 /////////////////////////////////////////////
 // nos conectamos con la base de datos
