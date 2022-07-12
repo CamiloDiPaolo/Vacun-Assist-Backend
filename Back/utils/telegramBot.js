@@ -142,12 +142,17 @@ ${msg}`;
 
 bot.command("suscribirse", async (ctx) => {
   if (usr) {
-    await User.findByIdAndUpdate(usr._id, {
-      telegramSuscribe: true,
-    });
-    ctx.reply(
-      "Felicidades. Ahora recibiras notificaciones desde esta conversacion!! 🎊🎉🎉🎊"
-    );
+    if (!usr.telegramSuscribe) {
+      usr = await User.findByIdAndUpdate(usr._id, {
+        telegramSuscribe: true,
+      });
+      ctx.reply(
+        "Felicidades. Ahora recibiras notificaciones desde esta conversacion!! 🎊🎉🎉🎊"
+      );
+    } else {
+      ctx.reply(`Ya estas suscrito 😅.
+Si queres desuscribirte ingresa /desuscribirse`);
+    }
   } else {
     ctx.reply(`Debe Iniciar Sesion para utilizar este comando
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
@@ -157,12 +162,17 @@ bot.command("suscribirse", async (ctx) => {
 
 bot.command("desuscribirse", async (ctx) => {
   if (usr) {
-    await User.findByIdAndUpdate(usr._id, {
-      telegramSuscribe: false,
-    });
-    ctx.reply(
-      "Ya no recibiras mas notificaciones desde esta conversacion... Perdon por molestar 😥"
-    );
+    if (usr.telegramSuscribe) {
+      usr = await User.findByIdAndUpdate(usr._id, {
+        telegramSuscribe: false,
+      });
+      ctx.reply(
+        "Ya no recibiras mas notificaciones desde esta conversacion... Perdon por molestar 😥"
+      );
+    } else {
+      ctx.reply(`No estas suscrito a telegram... 
+Si queres suscribirte ingresa /suscribirse`);
+    }
   } else {
     ctx.reply(`Debe Iniciar Sesion para utilizar este comando
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
@@ -300,14 +310,17 @@ const MaxMinDate = (appointments) => {
 };
 
 const modifyMessage = async (appointments) => {
-  let message = "Ademas, tenes Turnos en espera ⛔ para: ";
-  appointments.map((app) => {
-    if (app.state === "Pendiente") {
+  const pendingAppointments = appointments.filter(
+    (app) => app.state === "Pendiente"
+  );
+  if (pendingAppointments.length > 0) {
+    let message = "Ademas, tenes Turnos en espera ⛔ para: ";
+    pendingAppointments.map((app) => {
       message += `
 * ${app.vaccine} `;
-    }
-  });
-  return message;
+    });
+    return message;
+  } else return "";
 };
 
 const modifyCalendar = async (calendar) => {
