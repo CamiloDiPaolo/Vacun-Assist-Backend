@@ -218,7 +218,7 @@ exports.assingPendingAppointments = catchAsync(async (req, res, next) => {
       diff += 7;
       // pasamos la diferencia a años
       diff = diff / 365;
-
+      console.log("ACA ESTOY VIENDO LOS AÑOS DE LA PERSONA " + diff);
       if (diff >= 60 && req.body.vaccine == "FiebreAmarilla") {
         sesenta = true;
         return await Appointment.findByIdAndUpdate(appointment._id, {

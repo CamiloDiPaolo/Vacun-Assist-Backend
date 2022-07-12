@@ -131,8 +131,13 @@ exports.validateLocalAplication = catchAsync(async (req, res, next) => {
   console.log("Error");
   console.log(err);
   if (err) return next(new AppError(err, 500));
-  if (!(await availability(req.body.vaccine, req.user.vaccinationCenter)))
+  const stock = await Stock.findOne({
+    vaccinationCenter: req.user.vaccinationCenter,
+    vaccine: req.body.vaccine,
+  });
+  if (stock.cant == 0)
     return next(new AppError("No hay disponibilidad para esta vacuna 😥", 403));
+
   return res.status(201).json({
     status: "success",
     continue: true,

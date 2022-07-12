@@ -101,7 +101,7 @@ setInterval(async () => {
       await sendTelegramMessage(telegramUser.telegramID, appointment);
     }
   });
-}, 1000 * 60 * 35);
+}, 1000 * 60 * 20);
 
 /////////////////////////////////////////////
 // nos conectamos con la base de datos
