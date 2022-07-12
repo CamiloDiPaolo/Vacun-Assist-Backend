@@ -24,6 +24,15 @@ appointmentRouter
     vaccineAplication.vaccineLocalAplication
   );
 
+// validar para sacar turno local
+appointmentRouter
+  .route("/validateLocal")
+  .post(
+    authController.protect,
+    authController.restrictTo("vacc"),
+    vaccineAplication.validateLocalAplication
+  );
+
 // validar turno
 appointmentRouter
   .route("/validate")

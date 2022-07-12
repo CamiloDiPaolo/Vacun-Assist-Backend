@@ -120,6 +120,25 @@ exports.searchAppointments = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.validateLocalAplication = catchAsync(async (req, res, next) => {
+  console.log("llegue a validar");
+  // si el usuario ya esta vacunado contra esa vacuna no se permite sacar el turno
+  const err = await appointmentValidation(
+    req.body.dni,
+    req.body.vaccine,
+    req.body.birthday
+  );
+  console.log("Error");
+  console.log(err);
+  if (err) return next(new AppError(err, 500));
+  if (!(await availability(req.body.vaccine, req.user.vaccinationCenter)))
+    return next(new AppError("No hay disponibilidad para esta vacuna 😥", 403));
+  return res.status(201).json({
+    status: "success",
+    continue: true,
+  });
+});
+
 exports.vaccineLocalAplication = catchAsync(async (req, res, next) => {
   console.log("LOCALIZAME LA APLICACION");
   const patient = await User.findOne({ dni: req.body.dni });
