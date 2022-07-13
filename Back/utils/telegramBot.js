@@ -88,22 +88,24 @@ bot.command("logout", async (ctx) => {
 bot.command("turnos", async (ctx) => {
   if (usr) {
     const appointment = await getAllApointments(usr.dni);
-    if (appointment.length == 0) ctx.reply("Aún no tenes turnos vinculados.");
-    const { max, min } = MaxMinDate(appointment);
-    max.setDate(31);
-    min.setDate(1);
-    calendar.setMinDate(min).setMaxDate(max);
+    if (appointment.length == 0) {
+      ctx.reply("Aún no tenes turnos vinculados.");
+    } else {
+      const { max, min } = MaxMinDate(appointment);
+      max.setDate(31);
+      min.setDate(1);
+      calendar.setMinDate(min).setMaxDate(max);
 
-    calendar.setDateListener((context, date) => {
-      const notPendingAppointments = appointment.filter(
-        (app) => app.state !== "Pendiente"
-      );
-      notPendingAppointments.map((app) => {
-        const stringDate = app.vaccinationDate.toISOString().split("T", 1)[0];
-        if (stringDate === date) {
-          let message = " Turno:  ";
-          const date = getFullDate(app.vaccinationDate);
-          message = `${message}
+      calendar.setDateListener((context, date) => {
+        const notPendingAppointments = appointment.filter(
+          (app) => app.state !== "Pendiente"
+        );
+        notPendingAppointments.map((app) => {
+          const stringDate = app.vaccinationDate.toISOString().split("T", 1)[0];
+          if (stringDate === date) {
+            let message = " Turno:  ";
+            const date = getFullDate(app.vaccinationDate);
+            message = `${message}
             Estado: ${
               app.vaccinationCenter === "Externo"
                 ? "Ingresado por usuario 👍"
@@ -118,21 +120,22 @@ bot.command("turnos", async (ctx) => {
             Vacuna: ${app.vaccine}
             Vacunatorio: ${app.vaccinationCenter}
             Dia: ${date}`;
-          ctx.reply(message);
-        }
+            ctx.reply(message);
+          }
+        });
       });
-    });
 
-    let msg = await modifyMessage(appointment);
-    const newCalendar = await modifyCalendar(calendar.getCalendar());
-    msg = `Seleccione un simbolo para obtener mas informacion sobre el turno:
+      let msg = await modifyMessage(appointment);
+      const newCalendar = await modifyCalendar(calendar.getCalendar());
+      msg = `Seleccione un simbolo para obtener mas informacion sobre el turno:
 👍: Turno ingresado por el usuario
 ✅: Turno Finalizado
 ❌: Turno Cancelado
 ⌛: Turno Pendiente
 (Si tiene mas de un turno el mismo dia, se motraran todos los turnos)
 ${msg}`;
-    ctx.reply(msg, newCalendar);
+      ctx.reply(msg, newCalendar);
+    }
   } else {
     ctx.reply(`Debe Iniciar Sesion para utilizar este comando
 -Ingrese /login seguido de su DNI y codigo para ingresar. 
@@ -299,13 +302,18 @@ const sendMessage = async (id, appointment) => {
 
 const MaxMinDate = (appointments) => {
   const notPending = appointments.filter((app) => app.state !== "Pendiente");
-  let max = new Date(notPending[0].vaccinationDate);
-  let min = new Date(notPending[0].vaccinationDate);
-  notPending.map((app) => {
-    const date = new Date(app.vaccinationDate);
-    max = Date.parse(date) > Date.parse(max) ? date : max;
-    min = Date.parse(date) < Date.parse(min) ? date : min;
-  });
+  if (notPending.length === 0) {
+    let max = new Date();
+    let min = new Date();
+  } else {
+    let max = new Date(notPending[0].vaccinationDate);
+    let min = new Date(notPending[0].vaccinationDate);
+    notPending.map((app) => {
+      const date = new Date(app.vaccinationDate);
+      max = Date.parse(date) > Date.parse(max) ? date : max;
+      min = Date.parse(date) < Date.parse(min) ? date : min;
+    });
+  }
   return { max: max, min: min };
 };
 
