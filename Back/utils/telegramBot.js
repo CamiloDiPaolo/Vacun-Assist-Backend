@@ -302,12 +302,14 @@ const sendMessage = async (id, appointment) => {
 
 const MaxMinDate = (appointments) => {
   const notPending = appointments.filter((app) => app.state !== "Pendiente");
+  let = new Date();
+  let = new Date();
   if (notPending.length === 0) {
-    let max = new Date();
-    let min = new Date();
+    max = new Date();
+    min = new Date();
   } else {
-    let max = new Date(notPending[0].vaccinationDate);
-    let min = new Date(notPending[0].vaccinationDate);
+    max = new Date(notPending[0].vaccinationDate);
+    min = new Date(notPending[0].vaccinationDate);
     notPending.map((app) => {
       const date = new Date(app.vaccinationDate);
       max = Date.parse(date) > Date.parse(max) ? date : max;

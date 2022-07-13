@@ -68,7 +68,7 @@ app.use((req, res, next) => {
 // el intervalo para notificar se ejecuta  cada dia a las 11hs(actualmente esta configurado cada 10min)
 setInterval(async () => {
   const hour = new Date().getHours();
-  if (hour != 18) return;
+  if (hour != 13) return;
   const allAppointments = await Appointment.find({ state: "Activo" });
   const currentDate = new Date();
 
